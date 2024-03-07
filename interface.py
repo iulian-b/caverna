@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import sys
 from importlib.metadata import version
 from pathlib import Path
 
+import argon2
 from rich import box
 from rich.console import RenderableType
 from rich.json import JSON
@@ -80,25 +82,6 @@ LOGO_L5 = "╚██████╗██║  ██║ ╚████╔╝ �
 LOGO_L6 = " ╚═════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝"
 LOGO_ASCII = LOGO_L1 + LOGO_L2 + LOGO_L3 + LOGO_L4 + LOGO_L5 + LOGO_L6
 
-RICH_MD = """
-
-Textual is built on **Rich**, the popular Python library for advanced terminal output.
-
-Add content to your Textual App with Rich *renderables* (this text is written in Markdown and formatted with Rich's Markdown class).
-
-Here are some examples:
-"""
-
-CSS_MD = """
-
-Textual uses Cascading Stylesheets (CSS) to create Rich interactive User Interfaces.
-
-- **Easy to learn** - much simpler than browser CSS
-- **Live editing** - see your changes without restarting the app!
-
-Here's an example of some CSS used in this app:
-"""
-
 DATA = {
     "foo": [
         3.1427,
@@ -112,59 +95,15 @@ DATA = {
     ],
 }
 
-WIDGETS_MD = """
-
-Textual widgets are powerful interactive components.
-
-Build your own or use the builtin widgets.
-
-- **Input** Text / Password input.
-- **Button** Clickable button with a number of styles.
-- **Switch** A switch to toggle between states.
-- **DataTable** A spreadsheet-like widget for navigating data. Cells may contain text or Rich renderables.
-- **Tree** An generic tree with expandable nodes.
-- **DirectoryTree** A tree of file and folders.
-- *... many more planned ...*
-"""
-
 MESSAGE = """
-We hope you enjoy using Textual.
 
-Here are some links. You can click these!
+Iulian Ionel Bocșe\n(iulian@firemail.cc)
 
-[@click="app.open_link('https://textual.textualize.io')"]Textual Docs[/]
+- [@click="app.open_link('https://github.com/iulian-b/caverna')"]GitHub Repo[/]
 
-[@click="app.open_link('https://github.com/Textualize/textual')"]Textual GitHub Repository[/]
-
-[@click="app.open_link('https://github.com/Textualize/rich')"]Rich GitHub Repository[/]
-
-
-Built with ♥  by [@click="app.open_link('https://www.textualize.io')"]Textualize.io[/]
 """
 
-JSON_EXAMPLE = """{
-    "glossary": {
-        "title": "example glossary",
-		"GlossDiv": {
-            "title": "S",
-			"GlossList": {
-                "GlossEntry": {
-                    "ID": "SGML",
-					"SortAs": "SGML",
-					"GlossTerm": "Standard Generalized Markup Language",
-					"Acronym": "SGML",
-					"Abbrev": "ISO 8879:1986",
-					"GlossDef": {
-                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
-						"GlossSeeAlso": ["GML", "XML"]
-                    },
-					"GlossSee": "markup"
-                }
-            }
-        }
-    }
-}
-"""
+DEBUG = False
 
 
 class Body(ScrollableContainer):
@@ -214,12 +153,12 @@ class Message(Static):
 
 class Version(Static):
     def render(self) -> RenderableType:
-        return f"[b]v{version('textual')}"
+        return f"[b]v1.0"
 
 
 class Sidebar(Container):
     def compose(self) -> ComposeResult:
-        yield Title("Textual Demo")
+        yield Title("Caverna")
         yield OptionGroup(Message(MESSAGE), Version())
         yield DarkSwitch()
 
@@ -250,13 +189,13 @@ class LocationLink(Static):
         self.reveal = reveal
 
     def on_click(self) -> None:
-        self.app.query_one(self.reveal).scroll_visible(top=True, duration=0.5)
+        self.app.query_one(self.reveal).scroll_visible(top=False, duration=0.5)
         self.app.add_note(f"Scrolling to [b]{self.reveal}[/b]")
 
 
 class LoginForm(Container):
     input_uname = Input(placeholder="Username", classes="Input", name="input_username")
-    
+
     def compose(self, input_uname=input_uname) -> ComposeResult:
         yield Static("Username", classes="label")
         yield input_uname
@@ -274,17 +213,14 @@ class SubTitle(Static):
     pass
 
 
-class DemoApp(App[None]):
-    in_uname = ""
-    in_paswd = ""
-
+class Caverna(App[None]):
     CSS_PATH = "interface.tcss"
     TITLE = "Caverna"
     BINDINGS = [
-        ("ctrl+b", "toggle_sidebar", "Sidebar"),
+        ("f1", "app.toggle_class('RichLog', '-hidden')", "Log"),
         ("ctrl+t", "app.toggle_dark", "Theme"),
         # ("ctrl+s", "app.screenshot()", "Screenshot"),
-        ("f1", "app.toggle_class('RichLog', '-hidden')", "Log"),
+        ("ctrl+b", "toggle_sidebar", "About"),
         Binding("ctrl+q", "app.quit", "Quit", show=True),
     ]
 
@@ -370,37 +306,69 @@ class DemoApp(App[None]):
     @on(Button.Pressed)
     @on(Input.Submitted)
     def login_user(self):
-        for button in self.query("Input").results(Input):
-            if button.name == "input_username":
-                in_uname = button.value
-                self.app.add_note(f"USERNAME: [b]{button.value}[/b]")
-            if button.name == "input_password":
-                self.app.add_note(f"PASSWORD: [b]{button.value}[/b]")
-                in_paswd = button.value
+        input_uname = ""
+        input_paswd = ""
+        DEBUG = True
 
-            if in_uname != "":
-                db_tools.db_connect()
+        for inp in self.query("Input").results(Input):
+            if inp.name == "input_username":
+                input_uname = str(inp.value)
+                self.app.add_note(f"USERNAME: [b]{inp.value}[/b]")
+            if inp.name == "input_password":
+                self.app.add_note(f"PASSWORD: [b]{inp.value}[/b]")
+                input_paswd = str(inp.value)
 
-                mpwd_input = "spiruharet123!".encode()
-                twofa = "dee boo dah".encode()
-                mpwd_hash = hashlib.sha256(mpwd_input + twofa).hexdigest()
+            self.app.add_note(f"U: [b]{len(input_uname)}[/b]")
+            self.app.add_note(f"P: [b]{len(input_paswd)}[/b]")
+            if len(input_uname) > 0 and len(input_paswd) > 0:
+                try:
+                    # generate hash
+                    ph = argon2.PasswordHasher()
+                    usr_salt = db_tools.db_user_get_salt(input_uname)
+                    usr_salt = pwd_tools.pwd_b64decode(usr_salt)
+                    usr_hash = ph.hash(password=input_paswd, salt=usr_salt)
 
-                conn = db_tools.db_connect()
-                cursor = conn.cursor()
+                    try:
+                        ph.verify(usr_hash, input_paswd)
+                        self.app.add_note("GOOD")
+                    except:
+                        self.app.add_note("BAD")
 
-                cursor.execute(db_tools.sql("print"))
-                record = cursor.fetchall()
+                    # connect to db
+                    conn = db_tools.db_user_connect(input_uname, usr_hash)
+                    c = conn.cursor()
+                    self.app.add_note("Printing db: ")
 
-                for i in range(len(record)):
-                    entry = record[i]
-                    for j in range(len(entry)):
-                        titles = ["URL: ", "UNAME: ", "PASWD: "]
-                        if titles[j] == "PASWD: ":
-                            bytes_row = entry[j]
-                            pwd = pwd_tools.decrypt(bytes_row, mpwd_hash)
-                            self.app.add_note(f"USERNAME: [b]{str(pwd.decode('utf-8'))}")
-                        else:
-                            self.app.add_note(f"USERNAME: [b]{str(titles[j]) + str(entry[j])}")
+                    out = c.execute(db_tools.sql("print_pwds"))
+                    record = c.fetchall()
+
+                    self.app.add_note("Fetched")
+                    for i in range(len(record)):
+                        entry = record[i]
+                        for j in range(len(entry)):
+                            titles = ["ID: ", "URL: ", "UNAME: ", "PASWD: "]
+                            self.app.add_note(f"{str(titles[j]) + str(entry[j])}")
+                except:
+                    for inv in self.query("Input").results(Input):
+                        inv.add_class("-invalid")
+                    self.app.add_note("Login Failed")
+
+            #     except:
+            #         self.app.add_note("Failure to connect")
+            # # else:
+            #     self.app.add_note(":(")
+
+            #
+            # mpwd_input = "spiruharet123!".encode()
+            # twofa = "dee boo dah".encode()
+            # mpwd_hash = hashlib.sha256(mpwd_input + twofa).hexdigest()
+            #
+            # conn = db_tools.db_connect()
+            # cursor = conn.cursor()
+            #
+            # cursor.execute(db_tools.sql("print"))
+            # record = cursor.fetchall()
+            #
 
     # def action_screenshot(self, filename: str | None = None, path: str = "./") -> None:
     #     """Save an SVG "screenshot". This action will save an SVG file containing the current contents of the screen.
@@ -416,6 +384,6 @@ class DemoApp(App[None]):
     #     self.notify(message)
 
 
-app = DemoApp()
+app = Caverna()
 if __name__ == "__main__":
     app.run()

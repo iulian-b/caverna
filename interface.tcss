@@ -22,22 +22,21 @@ Notification {
 
 }
 
-Sidebar {
-    width: 40;
-    background: $panel;
-    transition: offset 500ms in_out_cubic;
-    layer: overlay;
-
-}
-
 #logo {
     border: double green;
     width: auto;
     margin: 0 0 0 20;
 }
 
+Sidebar {
+    width: 35;
+    background: $panel;
+    transition: offset 500ms in_out_cubic;
+    layer: overlay;
+}
+
 Sidebar:focus-within {
-    offset: 0 0 !important;
+    offset: 0 0;
 }
 
 Sidebar.-hidden {
@@ -244,7 +243,7 @@ LoginForm .Input:focus {
 }
 
 LoginForm .Input.-invalid:focus {
-    border: tall #ed4f51
+    border: tall #fe4648
 }
 
 Message {
