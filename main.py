@@ -23,6 +23,7 @@ def main():
 
     parsarg = argparse.ArgumentParser(description="Description")
     parsarg.add_argument("-N", "--new", action="store_true", help="Create a new user")
+    parsarg.add_argument("-C", "--change-pwd", type=str, nargs=1, help="Change Password", metavar="[USERNAME]")
     parsarg.add_argument("-v", "--version", action="store_true", help="Print version")
     parsarg.add_argument("-d", "--debug", action="store_true", help="Enable debugging")
     args = parsarg.parse_args()

@@ -2,10 +2,10 @@ from pysqlcipher3 import dbapi2 as sqlcipher
 
 
 # USERS
-def db_user_connect(user, mpwd):
+def db_user_connect(user, mpwd_hash):
     conn = sqlcipher.connect("caves/" + user + ".db")
     c = conn.cursor()
-    c.execute(f"PRAGMA key='{mpwd}'")
+    c.execute(f"PRAGMA key='{mpwd_hash}'")
     c.execute("PRAGMA cipher_compatibility = 3")
     conn.commit()
     c.close()
@@ -50,21 +50,21 @@ def db_user_get_salt(user):
     return salt[0]
 
 
-def sql(query):
+def sql(query, args):
     match query:
         case "insert":
-            return """INSERT INTO vault("URL", "UNAME", "PASWD") VALUES (%s, %s, %s)"""
+            return f"INSERT INTO caverna(URL, UNAME, PASWD) VALUES (\"{args[0]}\", \"{args[1]}\", \"{args[2]}\")"
         case "delete":
-            return """DELETE FROM vault WHERE URL = %s"""
-        case "update":
-            return """UPDATE vault SET URL = %s WHERE URL = %s"""
+            return f"DELETE FROM caverna WHERE URL = {args[0]}"
+        case "update_url":
+            return f"UPDATE caverna SET URL = {args[0]} WHERE URL = {args[1]}"
         case "update_uname":
-            return """UPDATE vault SET UNAME = %s WHERE URL = %s"""
+            return f"UPDATE caverna SET UNAME = {args[0]} WHERE URL = {args[1]}"
         case "update_paswd":
-            return """UPDATE vault SET PASWD = %s WHERE URL = %s"""
+            return f"UPDATE caverna SET PASWD = {args[0]} WHERE URL = {args[1]}"
         case "select":
-            return """SELECT * FROM vault WHERE URL = %s"""
+            return f"SELECT * FROM caverna WHERE URL = {args[0]}"
         case "update":
-            return """UPDATE vault SET PASWD = %s"""
-        case "print_pwds":
-            return """SELECT * FROM caverna"""
+            return f"UPDATE caverna SET PASWD = args[0]"
+        case "print":
+            return "SELECT URL, UNAME, PASWD FROM caverna"

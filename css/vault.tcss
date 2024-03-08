@@ -1,0 +1,44 @@
+#vault-body{
+    width: 100%;
+    height: 100%;
+    background: $boost 20%;
+}
+
+#vault-tree {
+    dock: left;
+    width: 20%;
+    height: 100%;
+}
+
+#vault-tree:focus > .tree--cursor {
+    background: $secondary-lighten-1;
+}
+
+PasswordInfo {
+    height: auto;
+    margin: 1 2;
+    padding: 1 2;
+    layout: grid;
+    grid-size: 2;
+    grid-rows: 4;
+    grid-columns: 12 1fr;
+    background: $boost;
+    border: wide $background;
+}
+
+PasswordInfo .label {
+    text-align: left;
+}
+
+PasswordInfo .Input:focus {
+    border: tall #4fa1ed
+}
+
+PasswordInfo .Input.-invalid:focus {
+    border: tall #fe4648
+}
+
+#vault-title {
+    margin: -5;
+    align: center middle;
+}

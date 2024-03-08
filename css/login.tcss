@@ -132,12 +132,6 @@ DarkSwitch Switch {
     dock: left;
 }
 
-
-Screen>Container {
-    height: 100%;
-    overflow: hidden;
-}
-
 RichLog {
     background: $surface;
     color: $text;
@@ -248,14 +242,7 @@ LoginForm .Input.-invalid:focus {
 
 Message {
     margin: 0 1;
-
 }
-
-
-Tree {
-    margin: 1 0;
-}
-
 
 Window {
     background: $boost;
