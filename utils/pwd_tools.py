@@ -1,18 +1,8 @@
 import base64
-import os
-import hashlib
-import random
 import string
-import time
 import secrets
 
-import pyscrypt
-from pbkdf2 import PBKDF2
-from Cryptodome.Cipher import AES
-from getpass import getpass
 from argon2 import PasswordHasher
-from base64 import b64encode, b64decode
-from Cryptodome.Cipher import ChaCha20_Poly1305
 
 
 def pwd_gen_new_hash(pwd):

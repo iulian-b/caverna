@@ -26,6 +26,14 @@ PasswordInfo {
     border: wide $background;
 }
 
+PasswordInfo.-hidden {
+    width: 0%;
+    height: 0%;
+    margin: 0;
+    border: none;
+    background: 0%;
+}
+
 PasswordInfo .label {
     text-align: left;
 }
@@ -41,4 +49,22 @@ PasswordInfo .Input.-invalid:focus {
 #vault-title {
     margin: -5;
     align: center middle;
+}
+
+PasswordButtons {
+    height: 20;
+    margin: 1 2;
+    layout: grid;
+    grid-size: 2;
+    grid-rows: 3;
+    grid-columns: 20;
+}
+
+PasswrodButtons .Button {
+    margin: 5;
+}
+
+PasswordButtons.-hidden {
+    height: 0%;
+    width: 0%;
 }

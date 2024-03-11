@@ -1,17 +1,11 @@
 import base64
-import secrets
-import sqlite3
-import string
-from hashlib import sha256
-import hashlib
 
 import pyscrypt
 from Cryptodome.Cipher import ChaCha20_Poly1305
-from pysqlcipher3 import dbapi2 as sqlite
 from argon2 import PasswordHasher
 
-import db_tools
-import pwd_tools
+import utils.db_tools as db_tools
+import utils.pwd_tools as pwd_tools
 
 
 def encrypt(pw, mstr, slt):
@@ -55,6 +49,15 @@ def decrypt(nonce, header, tag, chpw, mstr, slt):
 def main():
     ph = PasswordHasher()
     mp = "spiruharet123!"
+    inputmp = "spiruharet12d3!"
     user = "ibocse"
+
+    input_pw = ph.hash(inputmp)
+    print("INPUT  : " + input_pw)
+
+    control_pw = db_tools.db_user_get_hash(user)
+    print("CONTROL: " + control_pw)
+
+    ph.verify(control_pw, mp)
 
 main()

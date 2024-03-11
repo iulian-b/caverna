@@ -27,25 +27,25 @@ def db_user_initialize(user, mpwd):
 	    ID INTEGER PRIMARY KEY,
    	    URL TEXT NOT NULL,
 	    UNAME TEXT,
-	    PASWD TEXT NOT NULL UNIQUE
+	    PASWD TEXT NOT NULL
     )""")
     conn.commit()
     c.close()
 
 
 # GENERAL
-def db_add_user(user, salt):
+def db_add_user(user, mpwd_hash):
     conn = db_stash_connect()
     c = conn.cursor()
-    c.execute("INSERT INTO users('USER', 'SALT') VALUES(\"" + user + "\",\"" + salt + "\");")
+    c.execute("INSERT INTO users('NAME', 'HASH') VALUES(\"" + user + "\",\"" + mpwd_hash + "\");")
     conn.commit()
     c.close()
 
 
-def db_user_get_salt(user):
+def db_user_get_hash(user):
     conn = db_stash_connect()
     c = conn.cursor()
-    c.execute(f"SELECT SALT FROM users WHERE USER = '{user}'")
+    c.execute(f"SELECT HASH FROM users WHERE NAME = '{user}'")
     salt = c.fetchone()
     return salt[0]
 
@@ -63,7 +63,7 @@ def sql(query, args):
         case "update_paswd":
             return f"UPDATE caverna SET PASWD = {args[0]} WHERE URL = {args[1]}"
         case "select":
-            return f"SELECT * FROM caverna WHERE URL = {args[0]}"
+            return f"SELECT * FROM caverna WHERE ID = \"{args[0]}\""
         case "update":
             return f"UPDATE caverna SET PASWD = args[0]"
         case "print":

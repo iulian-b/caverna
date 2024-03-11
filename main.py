@@ -1,21 +1,11 @@
-import getpass
-import hashlib
 import os
 import sys
 import argparse
 
-import pwd_tools
-import db_tools
-
-LOGO_L1 = " ██████╗ █████╗ ██╗   ██╗███████╗██████╗ ███╗   ██╗ █████╗\n"
-LOGO_L2 = "██╔════╝██╔══██╗██║   ██║██╔════╝██╔══██╗████╗  ██║██╔══██╗\n"
-LOGO_L3 = "██║     ███████║██║   ██║█████╗  ██████╔╝██╔██╗ ██║███████║\n"
-LOGO_L4 = "██║     ██╔══██║╚██╗ ██╔╝██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║\n"
-LOGO_L5 = "╚██████╗██║  ██║ ╚████╔╝ ███████╗██║  ██║██║ ╚████║██║  ██║\n"
-LOGO_L6 = " ╚═════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝"
-LOGO_ASCII = LOGO_L1 + LOGO_L2 + LOGO_L3 + LOGO_L4 + LOGO_L5 + LOGO_L6
-
-VERSION = 'Caverna - 0.1a - 2024.7.3 - iulian(iulian@firemail.cc)'
+from utils import db_tools, pwd_tools
+import ui.login
+import ui.vault
+import ui.utils
 
 
 def main():
@@ -51,19 +41,34 @@ def main():
 
             db_tools.db_user_initialize(new_user, new_hash)
             if DEBUG: print(f"[DEBUG]: Initialized new pwd vault {new_user}.db")
-        except:
+        except Exception as e:
             if os.path.exists(f'{new_user}.db'):
                 print("[ERROR]: User already exists")
             else:
-                print("[ERROR]: Could not create new user")
+                print(f"[ERROR]: Could not create new user ({e})")
 
             sys.exit()
 
     if args.version:
-        print(LOGO_ASCII)
-        print(VERSION)
+        print(ui.utils.LOGO_ASCII)
+        print(ui.utils.VERSION)
         sys.exit()
 
 
 if __name__ == "__main__":
     main()
+
+    # login = ui.login.Login()
+    # res = login.run()
+
+    # USERNAME = res[0]
+    # PASSWORD = res[1]
+    USERNAME = "ibocse"
+    PASSWORD = "$argon2id$v=19$m=65536,t=3,p=4$i5oX1TMuyPaaoESIVRJggQ$mpnUR8llQ/fuwU8mTves4dzct2t5koaBYZ4Jb1DleRI"
+    # print(USERNAME)
+    # print(PASSWORD)
+
+    vault = ui.vault.Vault(USERNAME, PASSWORD)
+    vault.USERNAME = USERNAME
+    vault.PASSWORD = PASSWORD
+    res = vault.run()
