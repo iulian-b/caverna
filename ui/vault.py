@@ -1,10 +1,21 @@
 from __future__ import annotations
 
+# Packages
+import pyperclip
 import sys
 
-# Libs
-import pyperclip
-from Cryptodome.Random import get_random_bytes
+# Textual
+from rich.console import RenderableType
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Container
+from textual.widgets import (
+Footer,
+Header,
+Input,
+RichLog,
+Static, Tree, Button,
+)
 
 # Caverna
 import utils.db_tools as db_tools
@@ -14,21 +25,8 @@ from ui.utils import (
     Section,
 )
 
-# Textual
-from rich.console import RenderableType
-from textual.app import App, ComposeResult
-from textual.binding import Binding
-from textual.containers import Container
-from textual.widgets import (
-    Footer,
-    Header,
-    Input,
-    RichLog,
-    Static, Tree, Button,
-)
 
-
-########################################################################
+########################################################################################################################
 # NewPasswordInfo: Textual Class. A similar copy of PasswordInfo, but  #
 #                  used for gathering data required for inserting a    #
 #                  new row into the vault.                             #
@@ -75,7 +73,7 @@ class NewPasswordInfo(Container):
 
                 key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
                 if self.app.DEBUG: self.app.add_note(
-                    f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encoded key({key.decode('utf-8')})")
+                    f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encoded key({key.decode('ISO-8859-1')})")
 
                 new_pwd, new_nonce = pwd_tools.pwd_encrypt(inp_pwd, key)
                 if self.app.DEBUG: self.app.add_note(
@@ -108,8 +106,8 @@ class NewPasswordInfo(Container):
         self.app.sub_title = self.app.USERNAME
 
 
-########################################################################
-# PasswordIngo: Textual Class. Show data about the selected url/unm/pw #
+########################################################################################################################
+# PasswordInfo: Textual Class. Show data about the selected url/unm/pw #
 #               entry. Also stores buttons used in the edit mode.      #
 ########################################################################
 class PasswordInfo(Container):
@@ -210,7 +208,7 @@ class PasswordInfo(Container):
             try:
                 key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
                 if self.app.DEBUG: self.app.add_note(
-                    f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted key({key.decode('utf-8')}")
+                    f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted key({key.decode('ISO-8859-1')}")
 
                 conn = db_tools.db_user_connect(self.app.USERNAME, self.app.PASSWORD)
                 c = conn.cursor()
@@ -260,7 +258,7 @@ class PasswordInfo(Container):
             if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): refreshing tree")
 
 
-########################################################################
+########################################################################################################################
 # Vault: Textual App. Main boy and logic of the vault. Contains the    #
 #        all of the textual widgets and classes, Tree logic, and       #
 #        bindings.                                                     #
@@ -278,7 +276,8 @@ class Vault(App[None]):
         if USERNAME == "None" and PASSWORD == "None":
             sys.exit("[ERROR]: Login module skipped. Aborting")
         self.DEBUG = DEBUG
-
+        self.USERNAME = USERNAME
+        self.PASSWORD = PASSWORD
         super().__init__()
 
     BINDINGS = [
@@ -403,12 +402,13 @@ class Vault(App[None]):
         if self.app.DEBUG: self.app.add_note(f"[Vault].on_tree_node_selected(self): executed query: {db_tools.sql('select_nonce', (selected_username, selected_password))}")
 
         crypto = c.fetchone()
+        # nonce = base64.b64encode(crypto[0], 'utf-8')
         nonce = crypto[0]
         if self.app.DEBUG: self.app.add_note(
             f"[Vault].on_tree_node_selected(self): fetched nonce({nonce}) from db")
         key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
         if self.app.DEBUG: self.app.add_note(
-            f"[Vault].on_tree_node_selected(self): encrypted key({key.decode('utf-8')})")
+            f"[Vault].on_tree_node_selected(self): encrypted key({key.decode('ISO-8859-1')})")
 
         conn.commit()
         conn.close()
@@ -416,9 +416,11 @@ class Vault(App[None]):
             f"[Vault].on_tree_node_selected(self): closed connection to db")
 
         decrypted_pwd = pwd_tools.pwd_decrypt(selected_password, nonce, key)
+        if self.app.DEBUG: self.app.add_note(f"{selected_password}, {nonce}, {key}")
         if self.app.DEBUG: self.app.add_note(f"[Vault].on_tree_node_selected(self): decrypted password({selected_password} -> {decrypted_pwd})")
 
         pwinfo.set_labels(selected_url, selected_username, decrypted_pwd)
+        pyperclip.copy(str(self.app.PASSWORD))
         if self.app.DEBUG: self.app.add_note(f"[Vault].on_tree_node_selected(self): updated PasswordInfo labels")
 
     def action_pwd_edit(self) -> None:

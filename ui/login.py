@@ -1,9 +1,10 @@
+# Forgot why i needed this. Probabily its for some textual stuff
 from __future__ import annotations
 
-# Libs
+# Packages
 import argon2
 
-# Textual
+# Textual Pakcages
 from rich.console import RenderableType
 from rich.text import Text
 from textual import events
@@ -22,7 +23,6 @@ from textual.widgets import (
 
 # Caverna
 import utils.db_tools as db_tools
-import utils.pwd_tools as pwd_tools
 from ui.utils import (
     Sidebar,
     Body,
@@ -31,12 +31,15 @@ from ui.utils import (
     LOGO_ASCII
 )
 
+# Used for markdown text
 from_markup = Text.from_markup
 
+# Fags
 DEBUG = False
 LOGGED_IN = False
 
 
+########################################################################################################################
 class LoginForm(Container):
     input_uname = Input(placeholder="Username", classes="Input", id="input_username")
     input_paswd = Input(placeholder="Master Password", classes="Input", password=True, id="input_password")
@@ -53,20 +56,22 @@ class LoginForm(Container):
         self.query_one("#input_username").focus()
 
     def on_button_pressed(self) -> None:
+        # Get the inputted username and master password
         username = self.input_uname.value
         password = self.input_paswd.value
 
+        # If both Input fields are filled
         if len(username) > 0 and len(password) > 0:
             try:
+                # Get the user's hash from the _users database
                 ph = argon2.PasswordHasher()
-                # Retrieve control hash
                 control_hash = db_tools.db_user_get_hash(username)
 
-                # Verify
+                # Verify the inputted password against the hash
                 ph.verify(control_hash, password)
 
-                # Return
-                self.app.exit([username, control_hash])
+                # Return the username and master password hash
+                self.app.exit([username, db_tools.db_user_get_hash(username)])
 
             # Argon2 hash mismatch (invalid password)
             except argon2.exceptions.VerifyMismatchError:
@@ -81,7 +86,7 @@ class LoginForm(Container):
                 self.app.add_note("[LOGIN]: FAILED (user does not exist)")
 
 
-# Reuturn Username, Password, Log
+########################################################################################################################
 class Login(App[list]):
     CSS_PATH = "../css/login.tcss"
     TITLE = "Caverna"
