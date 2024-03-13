@@ -27,7 +27,8 @@ def db_user_initialize(user, mpwd):
 	    ID INTEGER PRIMARY KEY,
    	    URL TEXT NOT NULL,
 	    UNAME TEXT,
-	    PASWD TEXT NOT NULL
+	    PASWD TEXT NOT NULL,
+	    PASWD_NONCE TEXT
     )""")
     conn.commit()
     c.close()
@@ -35,9 +36,10 @@ def db_user_initialize(user, mpwd):
 
 # GENERAL
 def db_add_user(user, mpwd_hash):
+    key = mpwd_hash[-32:]
     conn = db_stash_connect()
     c = conn.cursor()
-    c.execute("INSERT INTO users('NAME', 'HASH') VALUES(\"" + user + "\",\"" + mpwd_hash + "\");")
+    c.execute(f"INSERT INTO users(NAME, HASH) VALUES(\'{user}\', \'{mpwd_hash}\')")
     conn.commit()
     c.close()
 
@@ -53,18 +55,18 @@ def db_user_get_hash(user):
 def sql(query, args):
     match query:
         case "insert":
-            return f"INSERT INTO caverna(URL, UNAME, PASWD) VALUES (\"{args[0]}\", \"{args[1]}\", \"{args[2]}\")"
+            return f"INSERT INTO caverna(URL, UNAME, PASWD, PASWD_NONCE) VALUES (\'{args[0]}\', \'{args[1]}\', \'{args[2]}\', \'{args[3]}\')"
         case "delete":
-            return f"DELETE FROM caverna WHERE URL = {args[0]}"
-        case "update_url":
-            return f"UPDATE caverna SET URL = {args[0]} WHERE URL = {args[1]}"
-        case "update_uname":
-            return f"UPDATE caverna SET UNAME = {args[0]} WHERE URL = {args[1]}"
-        case "update_paswd":
-            return f"UPDATE caverna SET PASWD = {args[0]} WHERE URL = {args[1]}"
+            return f"DELETE FROM caverna WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\' AND PASWD = \'{args[2]}\'"
+        case "update_row":
+            return f"UPDATE caverna SET URL = \'{args[0]}\', UNAME = \'{args[1]}\', PASWD = \'{args[2]}\', PASWD_NONCE = \'{args[3]}\' WHERE URL = \'{args[4]}\' AND UNAME = \'{args[5]}\' AND PASWD = \'{args[6]}\'"
         case "select":
-            return f"SELECT * FROM caverna WHERE ID = \"{args[0]}\""
-        case "update":
-            return f"UPDATE caverna SET PASWD = args[0]"
+            return f"SELECT * FROM caverna WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\' AND PASWD = \'{args[2]}'"
         case "print":
             return "SELECT URL, UNAME, PASWD FROM caverna"
+        case "update_user":
+            return f"UPDATE users SET HASH = \'{args[1]}\' WHERE NAME = \'{args[0]}\'"
+        case "select_nonce":
+            return f"SELECT PASWD_NONCE FROM caverna WHERE UNAME = \'{args[0]}\' AND PASWD = \'{args[1]}\'"
+        case "select_paswd":
+            return f"SELECT PASWD FROM caverna WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\'"

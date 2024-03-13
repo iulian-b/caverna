@@ -11,7 +11,7 @@ LOGO_L5 = "╚██████╗██║  ██║ ╚████╔╝ �
 LOGO_L6 = " ╚═════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝"
 LOGO_ASCII = LOGO_L1 + LOGO_L2 + LOGO_L3 + LOGO_L4 + LOGO_L5 + LOGO_L6
 
-VERSION = 'Caverna - 0.1a - 2024.7.3 - iulian(iulian@firemail.cc)'
+VERSION = 'Caverna - 0.1b - 2024.13.3 - iulian(iulian@firemail.cc)'
 
 SBMESSAGE = """
 

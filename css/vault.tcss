@@ -21,7 +21,7 @@ PasswordInfo {
     layout: grid;
     grid-size: 2;
     grid-rows: 4;
-    grid-columns: 12 1fr;
+    grid-columns: 13 1fr;
     background: $boost;
     border: wide $background;
 }
@@ -30,12 +30,23 @@ PasswordInfo.-hidden {
     width: 0%;
     height: 0%;
     margin: 0;
+    padding: 0;
     border: none;
     background: 0%;
 }
 
 PasswordInfo .label {
     text-align: left;
+}
+
+PasswordInfo Button {
+    min-width: 11;
+}
+
+PasswordInfo Button.-hidden {
+    width: 0%;
+    height: 0%;
+    border: none;
 }
 
 PasswordInfo .Input:focus {
@@ -46,25 +57,40 @@ PasswordInfo .Input.-invalid:focus {
     border: tall #fe4648
 }
 
+NewPasswordInfo {
+    height: auto;
+    margin: 1 2;
+    padding: 1 2;
+    layout: grid;
+    grid-size: 2;
+    grid-rows: 4;
+    grid-columns: 13 1fr;
+    background: $boost;
+    border: wide $background;
+}
+
+NewPasswordInfo.-hidden {
+    width: 0%;
+    height: 0%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: 0%;
+}
+
+NewPasswordInfo .label {
+    text-align: left;
+}
+
+NewPasswordInfo Button {
+    min-width: 11;
+}
+
+NewPasswordInfo .Input:focus {
+    border: tall #40e371
+}
+
 #vault-title {
     margin: -5;
     align: center middle;
-}
-
-PasswordButtons {
-    height: 20;
-    margin: 1 2;
-    layout: grid;
-    grid-size: 2;
-    grid-rows: 3;
-    grid-columns: 20;
-}
-
-PasswrodButtons .Button {
-    margin: 5;
-}
-
-PasswordButtons.-hidden {
-    height: 0%;
-    width: 0%;
 }
