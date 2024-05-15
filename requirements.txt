@@ -6,3 +6,5 @@ textual
 pyscrypt
 httpx
 argon2-cffi
+tempmail-python
+pyperclip

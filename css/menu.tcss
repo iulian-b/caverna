@@ -4,7 +4,6 @@
 
 Screen {
     layers: base overlay notes notifications;
-    overflow: hidden;
     align: center middle;
 }
 
@@ -18,7 +17,6 @@ Notification {
     background: $background;
     color: $text;
     height: auto;
-
 }
 
 #logo {
@@ -52,28 +50,6 @@ Sidebar Title {
     text-style: bold;
 }
 
-
-OptionGroup {
-    background: $boost;
-    color: $text;
-    height: 1fr;
-    border-right: vkey $background;
-}
-
-Option {
-    margin: 1 0 0 1;
-    height: 3;
-    padding: 1 2;
-    background: $boost;
-    border: tall $panel;
-    text-align: center;
-}
-
-Option:hover {
-    background: $primary 20%;
-    color: $text;
-}
-
 Body {
     height: 100%;
     overflow-y: hidden;
@@ -86,31 +62,6 @@ AboveFold {
     height: 100%;
     align: center middle;
 }
-
-Welcome {
-    background: $boost;
-    height: auto;
-    max-width: 100;
-    min-width: 20;
-    border: wide $primary;
-    padding: 1 2;
-    margin: 1 2;
-    box-sizing: border-box;
-    text-align: center;
-}
-
-Welcome Button {
-    width: 100%;
-    margin-top: 1;
-}
-
-Column {
-    height: auto;
-    min-height: 100vh;
-    align: center top;
-    overflow: hidden;
-}
-
 
 DarkSwitch {
     background: $panel;
@@ -151,7 +102,6 @@ RichLog:focus {
 RichLog.-hidden {
     offset-y: 100%;
 }
-
 
 Section {
     height: auto;
@@ -203,61 +153,65 @@ LocationLink:hover {
     margin: 1 0;
 }
 
-DataTable {
-    height: 16;
-    max-height: 16;
-}
-
-
-LoginForm {
-    height: auto;
+#menu_background {
+    height: 8fr;
     margin: 1 0;
     padding: 1 2;
     layout: grid;
-    grid-size: 2;
-    grid-rows: 4;
-    grid-columns: 12 1fr;
+    grid-size: 1;
+    align: center middle;
     background: $boost;
     border: wide $background;
 }
 
-LoginForm Button {
-    margin: 0 1;
-    width: 100%;
-}
-
-LoginForm .label {
-    padding: 1 2;
-    text-align: right;
-}
-
-LoginForm .Input:focus {
-    border: tall #4fa1ed
-}
-
-LoginForm .Input.-invalid:focus {
-    border: tall #fe4648
-}
-
-Message {
-    margin: 0 1;
+MenuForm Button {
+    margin: 1 1;
+    grid-size: 1;
+    width: 50%;
+    height: 100%;
+    text-style: bold;
 }
 
 Window {
     background: $boost;
-    overflow: auto;
+    overflow-y: hidden;
     height: auto;
-    max-height: 16;
+    max-height: 12;
 }
 
 Window>Static {
     width: auto;
 }
 
-
 Version {
     color: $text-disabled;
     dock: bottom;
     text-align: center;
     padding: 1;
+}
+
+QuitScreen {
+    align: center middle;
+}
+
+QuitScreen Button {
+    width: 100%;
+}
+
+#dialog {
+    grid-size: 2;
+    grid-gutter: 1 2;
+    grid-rows: 1fr 3;
+    padding: 0 1;
+    width: 60;
+    height: 11;
+    border: thick $background 80%;
+    background: $surface;
+}
+
+#question {
+    column-span: 2;
+    height: 1fr;
+    width: 1fr;
+    content-align: center middle;
 }

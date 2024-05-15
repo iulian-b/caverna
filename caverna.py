@@ -2,15 +2,18 @@
 import os
 import sys
 import argparse
-import argon2
+import atexit
+
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from getpass import getpass
-from utils import db_tools, pwd_tools
 
 # Caverna classes
 import ui.login
 import ui.vault
 import ui.utils
-
+import ui.menu
+from utils import db_tools, pwd_tools, sync_tools
 
 ########################################################################################################################
 def main():
@@ -25,44 +28,55 @@ def main():
     parsarg.add_argument("-d", "--debug", action="store_true", help="Enable debugging")
     args = parsarg.parse_args()
 
-########################################################################################################################
+    ########################################################################################################################
     # Argument --debug
     if args.debug:
         DEBUG = True
 
-########################################################################################################################
+    ########################################################################################################################
     # Argument --version
     if args.version:
         print(ui.utils.LOGO_ASCII)
-        print(ui.utils.VERSION)
+        print(ui.utils.VERSION_LONG)
         sys.exit()
 
-########################################################################################################################
+    ########################################################################################################################
     # Argument --new
     if args.new:
         # Get username and master password
         new_user = input("[NEW] Username: ")
         new_mpwd = getpass("[NEW] Master Password: ")
+        new_pepper = getpass("[NEW] Secret: ")
 
         try:
+            # Pepper master password
+            pep_mpwd = new_mpwd + new_pepper
+
             # Hash master password
-            new_hash = pwd_tools.pwd_gen_new_hash(new_mpwd)
+            new_hash = pwd_tools.pwd_gen_new_hash(pep_mpwd)
             if DEBUG: print(f"[args.new] Created hashed mpwd for {new_user}")
             if DEBUG: print(f"[args.new] HASH: {new_hash}")
+            if DEBUG: print(f"[args.new] Added {new_user} with mpwd {new_hash} to _users.db")
 
             # Add username and hashed mpwd to _users database
             db_tools.db_add_user(new_user, new_hash)
-            if DEBUG: print(f"[args.new] Added {new_user} with mpwd {new_hash} to _users.db")
 
-            # Create new database file for user
-            f = open("caves/" + new_user + ".db", "x")
+            # Create new temp database file for user
+            f = open("caves/" + new_user + "_temp.db", "x")
             f.close()
-            if DEBUG: print(f"[args.new] Created user db for {new_user}")
+            if DEBUG: print(f"[args.new] Created user db({new_user}_temp) for {new_user}")
 
             # Setup user database schema
             db_tools.db_user_initialize(new_user, new_hash)
             if DEBUG: print(f"[args.new] Initialized new pwd vault {new_user}.db")
 
+            # Split database file
+            db_tools.db_user_split_db(f"caves/{new_user}_temp.db", new_user, new_pepper)
+            print(f"[NEW] Split {new_user}_temp.db into smaller chunks")
+
+            # Remove temp database file
+            os.remove(f"caves/{new_user}_temp.db")
+            if DEBUG: print(f"[args.new] Removed {new_user}_temp.db")
             print(f"[NEW] Successfully created new vault for user {new_user}")
             print(f"[NEW] Start caverna with \"python3 .caverna.py\" to login")
 
@@ -75,17 +89,21 @@ def main():
 
         sys.exit()
 
-########################################################################################################################
+    ########################################################################################################################
     # Argument --change-pwd
     if args.changepwd:
         # Get username and master password
         change_username = input(f"[CHANGE PWD] Username: ")
         old_mpwd = getpass(f"[CHANGE PWD] User {change_username} master password: ")
-        if DEBUG: print(f"[args.changepwd] Got old mpwd {old_mpwd} by user {change_username}")
+        pepper = getpass(f"[CHANGE PWD] User {change_username} secret: ")
+        if DEBUG: print(f"[args.changepwd] Got old mpwd {old_mpwd} and pepper {pepper} by user {change_username}")
 
-        # Check if user exists, and exit if it does
+        # Hash the username + pepper + 0 (first file in split-file chain)
+        change_username_hashed = sync_tools.sync_hash_user(change_username + pepper + "0")
+
+        # Check if first file in chain exists, exit if it doesn't
         # This method prevents unknown users from finding out which other usernames are valid or not
-        if not os.path.isfile("caves/" + change_username + ".db"):
+        if not os.path.isfile("caves/" + change_username_hashed + ".cvrn"):
             print("[CHANGE PWD] Incorrect credentials")
             sys.exit()
 
@@ -98,7 +116,7 @@ def main():
         # Update the database containing the users and mpwd hashes
         try:
             # Get the old mpwd hash
-            ph = argon2.PasswordHasher()
+            ph = PasswordHasher()
             control_hash = db_tools.db_user_get_hash(change_username)
             if DEBUG: print(f"[args.changepwd] Hash from old password: {control_hash}")
 
@@ -127,13 +145,20 @@ def main():
             if DEBUG: print(f"[args.changepwd] Terminated connection with db")
 
         # Argon2 hash mismatch (invalid password)
-        except argon2.exceptions.VerifyMismatchError:
+        except VerifyMismatchError:
             print("[CHANGE PWD]: FAILED (incorrect master password)")
 
         # Update the user's vault database
         try:
+            # Join user's database
+            if os.path.exists(f"caves/{change_username}.cvrn"):
+                os.remove(f"caves/{change_username}.cvrn")
+
+            db_tools.db_user_join_splits(change_username, pepper)
+            if DEBUG: print(f"[args.changepwd] Retrieved {change_username}.cvrn database")
+
             # Connect to the user's database
-            conn = db_tools.db_user_connect(change_username, control_hash)
+            conn = db_tools.db_user_connect(change_username, pepper, control_hash)
             c = conn.cursor()
             if DEBUG: print(f"[args.changepwd] Connected to db")
 
@@ -189,6 +214,22 @@ def main():
             conn.commit()
             conn.close()
             if DEBUG: print(f"[args.changepwd] Terminated connection with db")
+
+            # Get re-keyed database joint file
+            # new_temp_db = db_tools.db_user_join_splits(change_username, pepper)
+
+            # Remove old split files
+            db_tools.db_user_remove_splits(change_username, pepper)
+            if DEBUG: print(f"[args.changepwd] Removed old 4 .cvrn files")
+
+            # Re-split new database file
+            db_tools.db_user_join_splits(change_username, pepper)
+            if DEBUG: print(f"[args.changepwd] Split new joint .cvrn")
+
+            # Delete joint database file
+            os.remove(f"caves/{change_username}.cvrn")
+            if DEBUG: print(f"[args.changepwd] Removed joint .cvrn database")
+
             print("[CHANGE PWD] New master password successfully set")
 
         except Exception as e:
@@ -196,24 +237,40 @@ def main():
 
         sys.exit()
 
-########################################################################################################################
+    ########################################################################################################################
     # Start the Login Textual App
     if DEBUG: print(f"[login()] Starting login")
-    login = ui.login.Login()
-    res = login.run()
+    ui_login = ui.login.Login()
+    login_res = ui_login.run()
+    ui_login.exit()
 
     # Get the inputted username and master password
-    USERNAME = res[0]
-    PASSWORD = res[1]
-    if DEBUG: print(f"[login()] Finished executing login with results: {USERNAME}, {PASSWORD}")
+    if login_res[0] is not None:
+        USERNAME = login_res[0]
+        PASSWORD = login_res[1]
+        SECRET = login_res[2]
+    else:
+        if DEBUG: print(f"[ui_login()] Minor Exception: Finished executing with None")
+    if DEBUG: print(f"[ui_login()] Finished executing login with results: {USERNAME}, {PASSWORD}, {SECRET}")
 
-    # Start the Vault Textual App with the username and master password
-    if DEBUG: print(
-        f"[vault(USERNAME, PASSWORD, DEBUG)] Starting vault with arguments: {USERNAME}, {PASSWORD}, {DEBUG}")
-    vault = ui.vault.Vault(USERNAME, PASSWORD, DEBUG)
-    vault.run()
+    # Safe remove user database before initializing vault
+    userpath = f"caves/{USERNAME}.cvrn"
+    if os.path.exists(userpath):
+        os.remove(userpath)
 
-    if DEBUG: print(f"[vault(USERNAME, PASSWORD, DEBUG)] Finished executing vault")
+    # Join fragments into user database
+    db_tools.db_user_join_splits(USERNAME, SECRET)
+
+    # Start the Menu Textual App
+    ui_menu = ui.menu.Menu(USERNAME, PASSWORD, SECRET, DEBUG)
+    menu_res = ui_menu.run()
+    ui_menu.exit()
+
+    # If exited correctly
+    if menu_res == 0:
+        if os.path.exists(userpath):
+            os.remove(userpath)
+        if DEBUG: print(f"[ui_menu()] Deleted {USERNAME} database")
 
 
 ########################################################################################################################

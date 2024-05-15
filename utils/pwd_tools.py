@@ -1,7 +1,7 @@
 # Packages
 import string
 import secrets
-from base64 import b64decode, b64encode, decodebytes
+from base64 import b64decode, b64encode
 from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Random import get_random_bytes
 from argon2 import PasswordHasher
@@ -55,7 +55,7 @@ def pwd_encrypt(plaintext, key):
         # Encrypt the given plaintext
         ciphertext = cipher.encrypt(plaintext)
 
-        # Retrieve and encode in base64 the nonce and ciphertext
+        # Retrieve and encode the nonce and ciphertext in base64
         nonce = b64encode(cipher.nonce).decode('ISO-8859-1')
         ciphertext = b64encode(ciphertext).decode('ISO-8859-1')
 
@@ -64,7 +64,7 @@ def pwd_encrypt(plaintext, key):
 
     # Exception if the values, types, or encodings used in the cipher are incorrect
     except ValueError as e:
-        print("Value Error")
+        print("[ERROR] Encryption failure: Value Error")
         print(e)
 
 
@@ -128,8 +128,8 @@ def pwd_gen(size):
     # Characters used for generation are:
     # Alpha (A-Z, a-z)
     # Numeric (0-9)
-    # US Keyboard Special Characters (`~!@#$%^&*()-_=+[{]};:,<.>/?| )
-    # (excluded ' and " characters, as they could mess with other functions, especially the SQL ones)
+    # US Lang Special Characters (`~!@#$%^&*()-_=+[{]};:,<.>/?| )
+    # (excluded ' and " characters, as they could mess with other functions, such as SQL ones)
     alpha = string.ascii_letters + string.digits + '`~!@#$%^&*()-_=+[{]};:,<.>/?| '
 
     # Generate random characters for the given size
