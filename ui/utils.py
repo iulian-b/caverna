@@ -25,7 +25,7 @@ SUB_LIST = ['Powered by argon2', 'No place like 127.0.0.1', '100% FOSS', 'Better
 LOGO_SUB = "\n" + random.choice(SUB_LIST)
 
 # Version
-VERSION = 'v0.6c'
+VERSION = 'v0.7a'
 VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.14.5 | iulian(iulian@firemail.cc) ~"
 
 # Sidebar message

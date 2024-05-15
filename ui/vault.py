@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import atexit
-import os
-
 # Packages
 import pyperclip
 import sys
@@ -299,14 +296,15 @@ class Vault(Screen):
         self.VAULT_DB = self.VAULT_CONN.cursor()
         super().__init__()
 
-    # REVISIT THIS
     BINDINGS = [
         Binding(key="f2", action="clip_username", description="📋 UNAME"),
         Binding(key="f3", action="clip_password", description="📋 PWSD"),
-        Binding(key="f5", action="save", description="💾 Save"),
+        Binding(key="f5", action="save", priority=True, description="💾 Save"),
         Binding(key="ctrl+a", action="pwd_add", description="🆕 Insert"),
         Binding(key="ctrl+e", action="pwd_edit", description="🔄 Edit"),
         Binding(key="ctrl+q", action="back", priority=True, description="🔙 Back"),
+        # Prevent force close
+        Binding(key="ctrl+c", action="", show=False, priority=True),
     ]
 
     def action_back(self) -> None:
@@ -360,7 +358,7 @@ class Vault(Screen):
 
         yield Container(
             Header(show_clock=True),
-            RichLog(classes="-hidden", wrap=False, highlight=True, markup=True),
+            RichLog(classes="-hidden", wrap=True, highlight=True, markup=True),
             Body(
                 tree,
                 Section(

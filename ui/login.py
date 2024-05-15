@@ -106,10 +106,10 @@ class Login(App[list]):
     CSS_PATH = "../css/login.tcss"
     TITLE = "Caverna - Login"
     BINDINGS = [
-        ("f1", "app.toggle_class('RichLog', '-hidden')", "Log"),
-        ("f8", "app.toggle_dark", "Theme"),
-        ("f9", "toggle_sidebar", "About"),
-        Binding("ctrl+q", "app.quit", "Quit", show=True),
+        ("f1", "app.toggle_class('RichLog', '-hidden')", "❗ Log"),
+        ("f5", "toggle_sidebar", "🌐 About"),
+        ("f9", "app.toggle_dark", "🎨 Theme"),
+        Binding("ctrl+q", "app.quit", "⛔ Exit", show=True),
     ]
     show_sidebar = reactive(False)
 
@@ -117,7 +117,7 @@ class Login(App[list]):
         yield Container(
             Sidebar(classes="-hidden"),
             Header(show_clock=True),
-            RichLog(classes="-hidden", wrap=False, highlight=True, markup=True),
+            RichLog(classes="-hidden", wrap=True, highlight=True, markup=True),
             Body(
                 Section(
                     SectionTitle(LOGO_ASCII + LOGO_SUB),

@@ -7,6 +7,7 @@ import os
 from rich.console import RenderableType
 from textual import events, on
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
 from textual.screen import Screen
@@ -27,12 +28,13 @@ from ui.utils import (
     QuitScreen
 )
 import ui.vault
+import ui.mail
 
 
 ########################################################################################################################
 class MenuForm(Container):
     btn_vault = Button(label="🔑 Vault", variant="primary", disabled=False, id="btn_vault")
-    btn_mail = Button(label="📧 E-mail", variant="success", disabled=True, id="btn_mail")
+    btn_mail = Button(label="📧 TempMail", variant="success", disabled=False, id="btn_mail")
     btn_notes = Button(label="📝 Notes", variant="warning", disabled=True, id="btn_notes")
     btn_settings = Button(label="⚙  Settings", variant="default", disabled=True, id="btn_settings")
 
@@ -53,11 +55,12 @@ class MenuForm(Container):
     @on(Button.Pressed, "#btn_vault")
     def vault_pressed(self, event: Button.Pressed) -> None:
         if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_vault): Pressed vault button")
-        # self.btn_vault.disabled = False
-        # self.app.exit(1)
-        # self.push_screen(ui.Vault(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
         self.app.push_screen(ui.vault.Vault(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
-        # self.app.install_screen(ui.vault.Vault(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG), name='vault')
+
+    @on(Button.Pressed, "#btn_mail")
+    def mail_pressed(self, event: Button.Pressed) -> None:
+        if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_mail): Pressed mail button")
+        self.app.push_screen(ui.mail.TempMail())
 
 
 ########################################################################################################################
@@ -70,9 +73,11 @@ class Menu(App[list]):
     DEBUG = False
     BINDINGS = [
         ("f1", "app.toggle_class('RichLog', '-hidden')", "❗Log"),
-        ("f8", "app.toggle_dark", "📺 Theme"),
-        ("f9", "toggle_sidebar", "🌐 About"),
+        ("f5", "toggle_sidebar", "🌐 About"),
+        ("f9", "app.toggle_dark", "🎨 Theme"),
         ("ctrl+q", "exit", "⛔ Exit"),
+        # Prevent Force Close
+        Binding(key="ctrl+c", action="", show=False, priority=True),
     ]
     show_sidebar = reactive(False)
 
@@ -92,7 +97,7 @@ class Menu(App[list]):
         yield Container(
             Sidebar(classes="-hidden"),
             Header(show_clock=True),
-            RichLog(classes="-hidden", wrap=False, highlight=True, markup=True),
+            RichLog(classes="-hidden", wrap=True, highlight=True, markup=True),
             Body(
                 Section(
                     SectionTitle(LOGO_ASCII),
