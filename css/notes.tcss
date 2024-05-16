@@ -1,0 +1,104 @@
+#vault-body{
+    width: 100%;
+    height: 100%;
+    background: $boost 20%;
+}
+
+#vault-tree {
+    dock: left;
+    width: 20%;
+    height: 100%;
+}
+
+#vault-tree:focus > .tree--cursor {
+    background: $secondary-lighten-1;
+}
+
+#vault-title {
+    margin: -5;
+    align: center middle;
+}
+
+
+TextArea {
+    height: auto;
+    margin: 0 2 0 2;
+    padding: 0 0;
+    layout: grid;
+    grid-size: 2;
+    grid-rows: 4;
+    grid-columns: 13 1fr;
+    background: $boost;
+    border: wide $background;
+}
+
+TextEdit.-hidden {
+    width: 0%;
+    height: 0%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: 0%;
+}
+
+TextView.-hidden {
+    width: 0%;
+    height: 0%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: 0%;
+}
+
+#lbl_file {
+    text-align: left;
+    padding: 1 2 2 2;
+}
+
+RichLog {
+    background: $surface;
+    color: $text;
+    height: 50vh;
+    dock: bottom;
+    layer: notes;
+    border-top: hkey $primary;
+    offset-y: 0;
+    transition: offset 400ms in_out_cubic;
+    padding: 0 1 1 1;
+}
+
+
+RichLog:focus {
+    offset: 0 0 !important;
+}
+
+RichLog.-hidden {
+    offset-y: 100%;
+}
+
+AddNote {
+    align: center middle;
+}
+
+AddNote Button {
+    width: 100%;
+}
+
+#new_btns {
+    grid-size: 2;
+    grid-gutter: 1 2;
+    padding: 0 1;
+    width: 70;
+    height: 5;
+    background: $surface;
+}
+
+#new_input {
+    content-align: center middle;
+    column-span: 2;
+    grid-rows: 1fr 3;
+    width: 70;
+    padding: 1 0;
+    height: 6;
+    background: $surface;
+}

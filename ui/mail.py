@@ -23,10 +23,31 @@ E-mail address automatically copied to clipboard.
 
 class TempMail(Screen):
     EMAILS_N = 0
+    CSS = """
+    RichLog {
+        background: $surface;
+        color: $text;
+        height: 50vh;
+        dock: bottom;
+        layer: notes;
+        border-top: hkey $primary;
+        offset-y: 0;
+        transition: offset 400ms in_out_cubic;
+        padding: 0 1 1 1;
+    }
+    
+    RichLog:focus {
+        offset: 0 0 !important;
+    }
+    
+    RichLog.-hidden {
+        offset-y: 100%;
+    }
+    """
 
     # FIX RICHLOG
     BINDINGS = [
-        Binding(key="f1", action="app.toggle_class('RichLog', '-hidden')", priority=True, show=False, description="❗Log"),
+        Binding(key="f1", action="app.toggle_class('RichLog', '-hidden')", priority=True, show=True, description="❗Log"),
         Binding(key="f2", action="clip_address", priority=True, description="📋 Address"),
         Binding(key="f5", action="refresh", priority=True, description="🔃 Fetch"),
         Binding(key="ctrl+q", action="back", priority=True, description="🔙 Back"),
@@ -36,6 +57,8 @@ class TempMail(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
+        # NOT WORKING ATM
+        # yield RichLog(classes="-hidden", wrap=True, highlight=True, markup=True)
         with TabbedContent(initial="address"):
             with TabPane(f"📧 {EMAIL_ADDRESS.address}", id="address"):
                 yield Markdown(MD_ADDRESS)

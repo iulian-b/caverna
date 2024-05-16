@@ -29,13 +29,14 @@ from ui.utils import (
 )
 import ui.vault
 import ui.mail
+import ui.notes
 
 
 ########################################################################################################################
 class MenuForm(Container):
     btn_vault = Button(label="🔑 Vault", variant="primary", disabled=False, id="btn_vault")
     btn_mail = Button(label="📧 TempMail", variant="success", disabled=False, id="btn_mail")
-    btn_notes = Button(label="📝 Notes", variant="warning", disabled=True, id="btn_notes")
+    btn_notes = Button(label="📝 Notes", variant="warning", disabled=False, id="btn_notes")
     btn_settings = Button(label="⚙  Settings", variant="default", disabled=True, id="btn_settings")
 
     def compose(self, btn_vault=btn_vault, btn_mail=btn_mail, btn_notes=btn_notes,
@@ -61,6 +62,12 @@ class MenuForm(Container):
     def mail_pressed(self, event: Button.Pressed) -> None:
         if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_mail): Pressed mail button")
         self.app.push_screen(ui.mail.TempMail())
+
+    @on(Button.Pressed, "#btn_notes")
+    def notes_pressed(self, event: Button.Pressed) -> None:
+        if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_notes): Pressed notes button")
+        self.app.push_screen(ui.notes.Notes(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
+
 
 
 ########################################################################################################################

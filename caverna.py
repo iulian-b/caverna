@@ -85,7 +85,8 @@ def main():
             if os.path.exists(f'{new_user}.db'):
                 print("[args.new] User already exists")
             else:
-                print(f"[args.new] Could not create new user ({e})")
+                print(f"[args.new] Could not create new user: ({e})")
+            os.remove(f"{new_user}_temp.db")
 
         sys.exit()
 
@@ -135,9 +136,9 @@ def main():
             c = conn.cursor()
 
             # Change the old mpwd hash with the new one
-            c.execute(db_tools.sql("update_user", (str(change_username), new_hash)))
+            c.execute(db_tools.sql_stash("update_user", (str(change_username), new_hash)))
             if DEBUG: print(
-                f"[args.changepwd] Executed query: {db_tools.sql('update_user', (str(change_username), new_hash))}")
+                f"[args.changepwd] Executed query: {db_tools.sql_stash('update_user', (str(change_username), new_hash))}")
 
             # Close the connection
             conn.commit()

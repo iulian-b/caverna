@@ -21,12 +21,14 @@ LOGO_ASCII = LOGO_L1 + LOGO_L2 + LOGO_L3 + LOGO_L4 + LOGO_L5 + LOGO_L6
 # The quirky logo subtitle
 SUB_LIST = ['Powered by argon2', 'No place like 127.0.0.1', '100% FOSS', 'Better than LastPass',
             '746865616E7377657269733432',
-            'No XZ Utils utilized', 'These messages are random', ':(){ :|:& };:']
+            'No XZ Utils utilized', 'These messages are random', ':(){ :|:& };:', 'They Not Like Us',
+            'traceroute bad.horse', 'R.I.P. towel.blinkenlights.nl', 'The answer is 42', 'ACHTUNG. ACHTUNG. 3-9-4-8-6 3-9-4-8-6',
+            'ChaCha20, Real Smooth']
 LOGO_SUB = "\n" + random.choice(SUB_LIST)
 
 # Version
-VERSION = 'v0.7a'
-VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.14.5 | iulian(iulian@firemail.cc) ~"
+VERSION = 'v0.8a'
+VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.16.5 | iulian(iulian@firemail.cc) ~"
 
 # Sidebar message
 SBMESSAGE = """

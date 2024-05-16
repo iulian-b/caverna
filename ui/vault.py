@@ -29,9 +29,9 @@ from ui.utils import (
 
 
 ########################################################################################################################
-# NewPasswordInfo: Textual Class. A similar copy of PasswordInfo, but  #
-#                  used for gathering data required for inserting a    #
-#                  new row into the vault.                             #
+# NewPasswordInfo: Widget. A similar copy of PasswordInfo, but used    #
+#                  for gathering data required for inserting a new row #
+#                  into the vault.                                     #
 ########################################################################
 class NewPasswordInfo(Container):
     def compose(self) -> ComposeResult:
@@ -57,7 +57,6 @@ class NewPasswordInfo(Container):
         self.query_one("#new_input_password").clear()
         if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].despawn(self): cleared inputs")
 
-
     @on(Button.Pressed, "#add_btn")
     def add_pressed(self, event: Button.Pressed) -> None:
         btn = str(event.button.label)
@@ -69,48 +68,59 @@ class NewPasswordInfo(Container):
 
         try:
             key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
-            if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encoded key({key.decode('ISO-8859-1')})")
+            if self.app.DEBUG: self.app.add_note(
+                f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encoded key({key.decode('ISO-8859-1')})")
 
             new_pwd, new_nonce = pwd_tools.pwd_encrypt(inp_pwd, key)
-            if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encrypted input pwd with nonce({new_nonce}): {new_pwd}")
+            if self.app.DEBUG: self.app.add_note(
+                f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): encrypted input pwd with nonce({new_nonce}): {new_pwd}")
 
-            if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): sent query: {db_tools.sql('insert', (inp_url, inp_uname, new_pwd, new_nonce))}")
-            self.screen.VAULT_DB.execute(db_tools.sql("insert", (inp_url, inp_uname, new_pwd, str(new_nonce))))
+            if self.app.DEBUG: self.app.add_note(
+                f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): sent query: {db_tools.sql_pwd('insert', (inp_url, inp_uname, new_pwd, new_nonce))}")
+            self.screen.VAULT_DB.execute(db_tools.sql_pwd("insert", (inp_url, inp_uname, new_pwd, str(new_nonce))))
 
             self.screen.VAULT_CONN.commit()
-            self.app.add_note(f"[INSERT] Inserted data UNAME:({inp_uname}) PASWD:({inp_pwd}) for new entry on -->{inp_url}")
+            self.app.add_note(
+                f"[INSERT] Inserted data UNAME:({inp_uname}) PASWD:({inp_pwd}) for new entry on -->{inp_url}")
         except Exception as e:
             self.app.bell()
-            self.app.add_note("[INSERT] Failed to add new entry")
+            self.app.add_note("[ERROR] ❗ Failed to add new entry")
             self.app.add_note(e)
 
         self.despawn()
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): despawned [NewPasswordInfo]")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): despawned [NewPasswordInfo]")
         self.screen.INSERTING = False
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): INSERTING -> False")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): INSERTING -> False")
 
         self.app.query_one(Tree).disabled = False
         self.screen.tree_refresh()
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
         self.app.add_note("[INSERT] Exited insert mode")
         self.sub_title = self.app.USERNAME
 
     @on(Button.Pressed, "#cancel_btn")
     def cancel_pressed(self, event: Button.Pressed) -> None:
         self.despawn()
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): despawned [NewPasswordInfo]")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): despawned [NewPasswordInfo]")
         self.screen.INSERTING = False
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): INSERTING -> False")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): INSERTING -> False")
 
         self.app.query_one(Tree).disabled = False
         self.screen.tree_refresh()
-        if self.app.DEBUG: self.app.add_note(f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
+        if self.app.DEBUG: self.app.add_note(
+            f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
         self.app.add_note("[INSERT] Exited insert mode")
         self.sub_title = self.app.USERNAME
 
+
 ########################################################################################################################
-# PasswordInfo: Textual Class. Show data about the selected url/unm/pw #
-#               entry. Also stores buttons used in the edit mode.      #
+# PasswordInfo: Widget. Shows data about the selected url/unm/pw entry #
+#               Also stores buttons used in the edit mode              #
 ########################################################################
 class PasswordInfo(Container):
     old_url = ""
@@ -201,66 +211,75 @@ class PasswordInfo(Container):
     @on(Button.Pressed, "#save_btn")
     def save_pressed(self, event: Button.Pressed) -> None:
         btn = str(event.button.label)
-        if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): pressed {btn}")
+        if self.app.DEBUG: self.app.add_note(
+            f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): pressed {btn}")
         sel_url = self.query_one("#input_url").value
         sel_uname = self.query_one("#input_username").value
         sel_pwd = self.query_one("#input_password").value
 
         try:
             key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted key({key.decode('ISO-8859-1')}")
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted key({key.decode('ISO-8859-1')}")
 
-            self.screen.VAULT_DB.execute(db_tools.sql("select_paswd", (self.old_url, self.old_uname)))
+            self.screen.VAULT_DB.execute(db_tools.sql_pwd("select_paswd", (self.old_url, self.old_uname)))
             res = self.screen.VAULT_DB.fetchone()
             old_ciphertext = res[0]
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): fetched old encrypted password({old_ciphertext}) from db")
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): fetched old encrypted password({old_ciphertext}) from db")
 
             new_ciphertext, new_nonce = pwd_tools.pwd_encrypt(sel_pwd, key)
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted input pwd({sel_pwd}) with new nonce({new_nonce}) -> {new_ciphertext}")
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): encrypted input pwd({sel_pwd}) with new nonce({new_nonce}) -> {new_ciphertext}")
 
-            self.screen.VAULT_DB.execute(db_tools.sql("update_row",
+            self.screen.VAULT_DB.execute(db_tools.sql_pwd("update_row",
                                                       (sel_url, sel_uname, new_ciphertext, new_nonce, self.old_url,
-                                                       self.old_uname,old_ciphertext)))
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql('update_row', (sel_url, sel_uname, new_ciphertext, new_nonce, self.old_url, self.old_uname, old_ciphertext))}")
+                                                       self.old_uname, old_ciphertext)))
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql_pwd('update_row', (sel_url, sel_uname, new_ciphertext, new_nonce, self.old_url, self.old_uname, old_ciphertext))}")
             self.screen.VAULT_CONN.commit()
 
             self.screen.tree_refresh()
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): refreshing tree")
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): refreshing tree")
             self.app.add_note(f"[EDIT] Edited entry on --> {self.old_url}")
 
         except Exception as e:
             self.app.bell()
-            self.app.add_note("[EDIT] Failed to edit entry")
+            self.app.add_note("[ERROR] ❗ Failed to edit entry")
             self.app.add_note(str(e))
 
     @on(Button.Pressed, "#delete_btn")
     def delete_pressed(self, event: Button.Pressed) -> None:
         btn = str(event.button.label)
-        if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): pressed {btn}")
+        if self.app.DEBUG: self.app.add_note(
+            f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): pressed {btn}")
         sel_url = self.query_one("#input_url").value
         sel_uname = self.query_one("#input_username").value
         sel_pwd = self.query_one("#input_password").value
 
         try:
-            self.screen.VAULT_DB.execute(db_tools.sql("delete", (sel_url, sel_uname, sel_pwd)))
-            if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql('delete', (sel_url, sel_uname, sel_pwd))}")
+            self.screen.VAULT_DB.execute(db_tools.sql_pwd("delete", (sel_url, sel_uname, sel_pwd)))
+            if self.app.DEBUG: self.app.add_note(
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql_pwd('delete', (sel_url, sel_uname, sel_pwd))}")
 
             self.screen.VAULT_CONN.commit()
             self.app.add_note(f"[EDIT] Removed entry on -->{sel_url} with username ({sel_uname})")
 
         except Exception as e:
             self.app.bell()
-            self.app.add_note("[EDIT] Failed to remove entry")
+            self.app.add_note("[ERROR] ❗ Failed to remove entry")
             self.app.add_note(str(e))
 
         self.screen.tree_refresh()
-        if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): refreshing tree")
+        if self.app.DEBUG: self.app.add_note(
+            f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): refreshing tree")
 
 
 ########################################################################################################################
-# Vault: Textual App. Main body and logic of the vault. Contains the   #
-#        all of the textual widgets and classes, Tree logic, and       #
-#        bindings.                                                     #
+# Vault: Textual Screen. Main body and logic of the vault.             #
+#        Contains all of the textual widgets and classes, Tree logic,  #
+#        and bindings.                                                 #
 ########################################################################
 class Vault(Screen):
     # CSS
@@ -287,7 +306,7 @@ class Vault(Screen):
 
     def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG):
         if USERNAME is None and PASSWORD is None:
-            sys.exit("[ERROR]: Login module skipped. Aborting")
+            sys.exit("[ERROR]: ❗ Login module skipped. Aborting")
         self.DEBUG = DEBUG
         self.USERNAME = USERNAME
         self.PASSWORD = PASSWORD
@@ -327,7 +346,7 @@ class Vault(Screen):
     def tree_initialize(self, tree):
         pwds = tree.root.children[0]
 
-        self.VAULT_DB.execute(db_tools.sql("print", ""))
+        self.VAULT_DB.execute(db_tools.sql_pwd("print", ""))
         urls = self.VAULT_DB.fetchall()
         self.VAULT_CONN.commit()
 
@@ -373,7 +392,7 @@ class Vault(Screen):
     def on_mount(self) -> None:
         self.query_one(Tree).focus()
         self.app.add_note(f"🔑 Entered {self.app.USERNAME}'s Vault")
-        self.query_one(NewPasswordInfo).add_class("-hidden")
+        self.query_one(NewPasswordInfo).despawn()
         if self.app.DEBUG: self.app.add_note(
             f"[Vault].__init__(self, USERNAME, PASSWORD, DEBUG): opened vault with data: {self.USERNAME}, {self.PASSWORD}, {self.DEBUG}")
         if self.app.DEBUG: self.app.add_note(f"[Vault].compose(self): initialized tree")
@@ -407,7 +426,7 @@ class Vault(Screen):
             return
 
         if node_id == -1:
-            self.app.add_note(f"-> {self.app.USERNAME} vault")
+            self.app.add_note(f"-> {self.app.USERNAME}'s vault")
             if self.app.DEBUG: self.app.add_note(f"[Vault].on_tree_node_selected(self): despawned PasswordInfo")
             pwinfo.despawn()
             return
@@ -428,9 +447,9 @@ class Vault(Screen):
         pwinfo.spawn()
         if self.app.DEBUG: self.app.add_note(f"[Vault].on_tree_node_selected(self): spawned PassowrdInfo")
 
-        self.VAULT_DB.execute(db_tools.sql("select_nonce", (selected_username, selected_password)))
+        self.VAULT_DB.execute(db_tools.sql_pwd("select_nonce", (selected_username, selected_password)))
         if self.app.DEBUG: self.app.add_note(
-            f"[Vault].on_tree_node_selected(self): executed query: {db_tools.sql('select_nonce', (selected_username, selected_password))}")
+            f"[Vault].on_tree_node_selected(self): executed query: {db_tools.sql_pwd('select_nonce', (selected_username, selected_password))}")
 
         crypto = self.VAULT_DB.fetchone()
         # nonce = base64.b64encode(crypto[0], 'utf-8')

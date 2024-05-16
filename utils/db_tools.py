@@ -188,7 +188,7 @@ def db_user_initialize(user, mpwd):
     c.execute(f"PRAGMA key='{mpwd}'")
     c.execute("PRAGMA cipher_compatibility = 3")
 
-    # Exectute the CREATE TABLE query
+    # Exectute the CREATE TABLE query for passwords vault
     c.execute("""CREATE TABLE passwords (
 	    ID INTEGER PRIMARY KEY,
    	    URL TEXT NOT NULL,
@@ -196,9 +196,17 @@ def db_user_initialize(user, mpwd):
 	    PASWD TEXT NOT NULL,
 	    NONCE TEXT
     )""")
+    conn.commit()
+
+    # Exectute the CREATE TABLE query for notes vault
+    c.execute("""CREATE TABLE notes (
+    	    ID INTEGER PRIMARY KEY,
+       	    FILENAME TEXT NOT NULL UNIQUE,
+    	    CONTENT TEXT
+    )""")
+    conn.commit()
 
     # Terminate the connection
-    conn.commit()
     c.close()
 
 
@@ -255,7 +263,7 @@ def db_user_get_hash(user):
 #  - str[args]: the list of arguments to be inserted into the chosen query. None can also be given.
 # Returns:
 #  - str(query)
-def sql(query, args):
+def sql_pwd(query, args):
     match query:
         # [SELECT QUERIES]
         # SELECT a specific row from the vault
@@ -281,9 +289,6 @@ def sql(query, args):
         # UPDATE the encrypted password and nonce from the vault
         case "update_crypto":
             return f"UPDATE passwords SET PASWD = \'{args[0]}\', NONCE = \'{args[1]}\' WHERE PASWD = \'{args[2]}\' AND NONCE = \'{args[3]}\'"
-        # UPDATE a row from the users database
-        case "update_user":
-            return f"UPDATE users SET MPWD = \'{args[1]}\' WHERE USER = \'{args[0]}\'"
 
         # [INSERT QUERIES]
         # INSERT a new row into the vault
@@ -294,3 +299,40 @@ def sql(query, args):
         # DELETE a row from the vault
         case "delete":
             return f"DELETE FROM passwords WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\' AND PASWD = \'{args[2]}\'"
+
+
+def sql_stash(query, args):
+    match query:
+        # [UPDATE QUERIES]
+        # UPDATE a row from the users database
+        case "update_user":
+            return f"UPDATE users SET MPWD = \'{args[1]}\' WHERE USER = \'{args[0]}\'"
+
+
+def sql_notes(query, args):
+    match query:
+        # [SELECT QUERIES]
+        # SELECT a specific row from the vault
+        case "select":
+            return f"SELECT * FROM notes WHERE FILENAME = \'{args}\'"
+        # SELECT every row from the vault
+        case "print":
+            return "SELECT FILENAME, CONTENT FROM notes"
+
+        # [UPDATE QUERIES]
+        # UPDATE the filename of a row
+        case "update_filename":
+            return f"UPDATE notes SET FILENAME = \'{args[0]}\' WHERE FILENAME = \'{args[1]}\'"
+        # UPDATE the content of a row
+        case "update_content":
+            return f"UPDATE notes SET CONTENT = \'{args[0]}\' WHERE FILENAME = \'{args[1]}\'"
+
+        # [INSERT QUERIES]
+        # INSERT a new row into the vault
+        case "insert_new":
+            return f"INSERT INTO notes(FILENAME, CONTENT) VALUES (\'{args[0]}\', \'{args[1]}\')"
+
+        # [DELETE QUERIES]
+        # DELETE a row from the vault
+        case "delete":
+            return f"DELETE FROM notes WHERE FILENAME = \'{args}\'"
