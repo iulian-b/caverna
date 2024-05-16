@@ -7,7 +7,7 @@ import sys
 # Textual
 from rich.console import RenderableType
 from textual import on
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container
 from textual.screen import Screen
@@ -29,10 +29,10 @@ from ui.utils import (
 
 
 ########################################################################################################################
-# NewPasswordInfo: Widget. A similar copy of PasswordInfo, but used    #
-#                  for gathering data required for inserting a new row #
-#                  into the vault.                                     #
-########################################################################
+# NewPasswordInfo(Widget): A similar copy of PasswordInfo, but used for        #
+#                          gathering data required for inserting a new row     #
+#                          into the vault.                                     #
+################################################################################
 class NewPasswordInfo(Container):
     def compose(self) -> ComposeResult:
         yield Static("URL", classes="label")
@@ -119,8 +119,8 @@ class NewPasswordInfo(Container):
 
 
 ########################################################################################################################
-# PasswordInfo: Widget. Shows data about the selected url/unm/pw entry #
-#               Also stores buttons used in the edit mode              #
+# PasswordInfo(Widget): Shows data about the selected url/unm/pw entry #
+#                       Also stores buttons used in the edit mode.     #
 ########################################################################
 class PasswordInfo(Container):
     old_url = ""
@@ -192,22 +192,6 @@ class PasswordInfo(Container):
         self.old_pwd = self.query_one("#input_password").value
         if self.app.DEBUG: self.app.add_note(f"[PasswordInfo].store_inputs(self): stored old inputs")
 
-    # FUCK YOU I DONT NEED THIS ON_INPUT_CHANGED BULLSHIT I CHANGED MY MIND
-    # def on_input_changed(self, event: Input.Changed) -> None:
-    #     if not self.STORED and self.app.EDITING:
-    #         # I DONT KNOW WHY, I DONT WANT TO KNOW WHY, I SHOULDNT HAVE TO WONDER WHY, BUT FOR WATHEVER REASON
-    #         # THIS STUPID THING DOESNT WORK UNLESS I USE A FUCKING FLAG TO SKIP THE LAST CHARACTER ON THE FIRST TIME
-    #         # I READ AND STORE THE DATA.
-    #         # MAY GOD HAVE MERCY ON MY SANITY AND PUT ME TO SLEEP ONE DAY.
-    #         if not self.SKIP:
-    #             event.input.value = event.input.value[:-1]
-    #             self.SKIP = True
-    #         else:
-    #             self.old_url = self.query_one("#input_url").value
-    #             self.old_uname = self.query_one("#input_username").value
-    #             self.old_pwd = self.query_one("#input_password").value
-    #             self.STORED = True
-
     @on(Button.Pressed, "#save_btn")
     def save_pressed(self, event: Button.Pressed) -> None:
         btn = str(event.button.label)
@@ -277,9 +261,9 @@ class PasswordInfo(Container):
 
 
 ########################################################################################################################
-# Vault: Textual Screen. Main body and logic of the vault.             #
-#        Contains all of the textual widgets and classes, Tree logic,  #
-#        and bindings.                                                 #
+# Vault(Screen): Main body and logic of the vault.                     #
+#                Contains all of the textual widgets and classes,      #
+#                Tree logic, and bindings.-                            #
 ########################################################################
 class Vault(Screen):
     # CSS

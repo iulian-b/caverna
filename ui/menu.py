@@ -1,7 +1,5 @@
 # Packages
 import sys
-import atexit
-import os
 
 # Textual Pakcages
 from rich.console import RenderableType
@@ -10,7 +8,6 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
-from textual.screen import Screen
 from textual.widgets import (
     Button,
     Footer,
@@ -33,6 +30,9 @@ import ui.notes
 
 
 ########################################################################################################################
+# MenuForm(Widget): Handles the passing of user credentials to other   #
+#                   sub-screens, and the screen-pushing methods.       #
+########################################################################
 class MenuForm(Container):
     btn_vault = Button(label="🔑 Vault", variant="primary", disabled=False, id="btn_vault")
     btn_mail = Button(label="📧 TempMail", variant="success", disabled=False, id="btn_mail")
@@ -71,6 +71,9 @@ class MenuForm(Container):
 
 
 ########################################################################################################################
+# Menu(App): Main app of CAVERNA, registers and store the user's       #
+#            credentials.                                              #
+########################################################################
 class Menu(App[list]):
     CSS_PATH = "../css/menu.tcss"
     TITLE = "Caverna - Menu"

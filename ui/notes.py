@@ -1,21 +1,33 @@
+# Packages
 import sys
 
+# Textual
 from rich.console import RenderableType
 from textual import work
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, ScrollableContainer, Grid
 from textual.screen import ModalScreen, Screen
-from textual.widgets import Tree, Header, RichLog, Footer, TextArea, Static, Markdown, Label, Button, Input
+from textual.widgets import (
+    Tree,
+    Header,
+    RichLog,
+    Footer,
+    TextArea,
+    Static,
+    Markdown,
+    Button,
+    Input
+)
 
+# Caverna
+import utils.db_tools as db_tools
 from ui.utils import Body, Section
-from utils import db_tools
 
 
 ########################################################################################################################
-# AddNote: ModalScreen.                                                #
-#                                                                      #
-#                                                                      #
+# AddNote(ModalScreen): Gathers the filename for a newly created       #
+#                       note entry to be added to the vault.           #
 ########################################################################
 class AddNote(ModalScreen):
     NEW_FILENAME = None
@@ -40,9 +52,8 @@ class AddNote(ModalScreen):
 
 
 ########################################################################################################################
-# TextEdit: Widget.                                                    #
-#                                                                      #
-#                                                                      #
+# TextEdit(Widget): Displays the content of the notes through a        #
+#                   modifiable textarea.                               #
 ########################################################################
 class TextEdit(Container):
     def compose(self) -> ComposeResult:
@@ -73,9 +84,8 @@ class TextEdit(Container):
 
 
 ########################################################################################################################
-# TextView: Widget.                                                    #
-#                                                                      #
-#                                                                      #
+# TextView(Widget): Displays the content of the notes through a        #
+#                   markdown renderer.                                 #
 ########################################################################
 class TextView(Container):
     def compose(self) -> ComposeResult:
@@ -102,9 +112,9 @@ class TextView(Container):
 
 
 ########################################################################################################################
-# Notes: Textual Screen.                                               #
-#                                                                      #
-#                                                                      #
+# Notes(Screen): Main body and logic of the vault.                     #
+#                Contains all of the textual widgets and classes,      #
+#                Tree logic, and bindings.                             #
 ########################################################################
 class Notes(Screen):
     # CSS
