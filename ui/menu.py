@@ -27,6 +27,7 @@ from ui.utils import (
 import ui.vault
 import ui.mail
 import ui.notes
+import ui.otp
 
 
 ########################################################################################################################
@@ -34,20 +35,20 @@ import ui.notes
 #                   sub-screens, and the screen-pushing methods.       #
 ########################################################################
 class MenuForm(Container):
-    btn_vault = Button(label="🔑 Vault", variant="primary", disabled=False, id="btn_vault")
+    btn_vault = Button(label="🔑 Password Manager", variant="primary", disabled=False, id="btn_vault")
     btn_mail = Button(label="📧 TempMail", variant="success", disabled=False, id="btn_mail")
     btn_notes = Button(label="📝 Notes", variant="warning", disabled=False, id="btn_notes")
-    btn_settings = Button(label="⚙  Settings", variant="default", disabled=True, id="btn_settings")
+    btn_otp = Button(label="⌛ OTP", variant="default", disabled=False, id="btn_otp")
 
     def compose(self, btn_vault=btn_vault, btn_mail=btn_mail, btn_notes=btn_notes,
-                btn_settings=btn_settings) -> ComposeResult:
+                btn_otp=btn_otp) -> ComposeResult:
         yield Horizontal(
             btn_vault,
             btn_mail,
         )
         yield Horizontal(
             btn_notes,
-            btn_settings,
+            btn_otp,
         )
 
     def _on_mount(self, event: events.Mount) -> None:
@@ -68,6 +69,10 @@ class MenuForm(Container):
         if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_notes): Pressed notes button")
         self.app.push_screen(ui.notes.Notes(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
 
+    @on(Button.Pressed, "#btn_otp")
+    def otp_pressed(self, event: Button.Pressed) -> None:
+        if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_otp): Pressed otp button")
+        self.app.push_screen(ui.otp.OTP(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
 
 
 ########################################################################################################################
@@ -76,10 +81,11 @@ class MenuForm(Container):
 ########################################################################
 class Menu(App[list]):
     CSS_PATH = "../css/menu.tcss"
-    TITLE = "Caverna - Menu"
-    USERNAME = "None"
-    PASSWORD = "None"
-    SECRET = ""
+    TITLE = "CAVERNA"
+    SUB_TITLE = "Menu"
+    USERNAME = None
+    PASSWORD = None
+    SECRET = None
     DEBUG = False
     BINDINGS = [
         ("f1", "app.toggle_class('RichLog', '-hidden')", "❗Log"),
@@ -98,6 +104,8 @@ class Menu(App[list]):
         self.USERNAME = USERNAME
         self.PASSWORD = PASSWORD
         self.SECRET = SECRET
+
+        self.app.sub_title = self.USERNAME
         super().__init__()
 
     def action_exit(self) -> None:

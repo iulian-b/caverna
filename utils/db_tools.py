@@ -14,15 +14,18 @@ def db_user_split_db(tempfile_path, user, pepper):
     # File size of the temp .db file
     FILE_SIZE = os.stat(tempfile_path).st_size
 
+    # Fragmentation Factor
+    FRAGMENTS = round(FILE_SIZE / 1024)
+
     # The amount of bytes to read at a time
-    CHUNK_SIZE = int(FILE_SIZE / 4)
+    CHUNK_SIZE = int(FILE_SIZE / FRAGMENTS)
 
     # The temporary .db file
     tempfile = open(tempfile_path, 'rb')
 
     # Read the first chunk of data
     chunk = tempfile.read(CHUNK_SIZE)
-    for i in range(4):
+    for i in range(FRAGMENTS):
         # Hash new split filename
         split_filename = sync_tools.sync_hash_user(user + pepper + str(i))
 
@@ -51,21 +54,32 @@ def db_user_join_splits(user, secret):
     # Create empty file
     file_joint = open(f"caves/{user}.cvrn", 'wb')
 
-    for i in range(4):
+    # Counter
+    counter = 0
+
+    while(1):
         # Generate hash with the user + pepper + n
-        split_filename = sync_tools.sync_hash_user(user + secret + str(i))
+        split_filename = sync_tools.sync_hash_user(user + secret + str(counter))
 
-        # Open split file
-        split_file = open(f"caves/{split_filename}.cvrn", 'rb')
+        # Try to open split file
+        try:
+            # Open split file
+            split_file = open(f"caves/{split_filename}.cvrn", 'rb')
 
-        # Append the contents of the split file into the unified file
-        file_joint.write(split_file.read())
+            # Append the contents of the split file into the unified file
+            file_joint.write(split_file.read())
 
-        # Close files
-        split_file.close()
+            # Close files
+            split_file.close()
+
+            # Advance counter
+            counter += 1
+        except FileNotFoundError:
+            break
 
     file_joint.close()
     # return file_joint
+
 
 
 ########################################################################################################################
@@ -206,6 +220,15 @@ def db_user_initialize(user, mpwd):
     )""")
     conn.commit()
 
+    # Execute the CREATE TABLE query for the OTP vault
+    c.execute("""CREATE TABLE otp (
+    	    ID INTEGER PRIMARY KEY,
+       	    ISSUER TEXT NOT NULL,
+    	    SECRET TEXT NOT NULL
+    )""")
+    conn.commit()
+
+
     # Terminate the connection
     c.close()
 
@@ -336,3 +359,23 @@ def sql_notes(query, args):
         # DELETE a row from the vault
         case "delete":
             return f"DELETE FROM notes WHERE FILENAME = \'{args}\'"
+
+def sql_otp(query, args):
+    match query:
+        # [SELECT QUERIES]
+        # SELECT a specific row from the vault
+        case "select":
+            return f"SELECT * FROM otp WHERE ISSUER = \'{args}\'"
+        # SELECT every row from the vault
+        case "print":
+            return "SELECT ISSUER, SECRET FROM otp"
+
+        # [INSERT QUERIES]
+        # INSERT a new row into the vault
+        case "insert_new":
+            return f"INSERT INTO otp(ISSUER, SECRET) VALUES (\'{args[0]}\', \'{args[1]}\')"
+
+        # [DELETE QUERIES]
+        # DELETE a row from the vault
+        case "delete":
+            return f"DELETE FROM otp WHERE ISSUER = \'{args[0]}\' AND SECRET = \'{args[1]}\'"

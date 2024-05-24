@@ -167,6 +167,8 @@ class Notes(Screen):
 
     def action_back(self) -> None:
         self.VAULT_CONN.close()
+        self.app.title = "CAVERNA"
+        self.app.sub_title = "Menu"
         self.app.pop_screen()
 
     def tree_initialize(self, tree) -> None:
@@ -200,6 +202,7 @@ class Notes(Screen):
         tree.root.add_leaf(label="Notes")
         self.tree_initialize(tree)
         tree.root.expand()
+        self.app.TITLE = "CAVERNA - Notes"
         self.app.sub_title = self.USERNAME
 
         yield Container(
@@ -435,6 +438,24 @@ class Notes(Screen):
         if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): sent query: {db_tools.sql_notes('update_content', ('[CONTENT]', node_label))}")
 
         self.UNSAVED = True
+
+        # Close connection to DB
+        self.VAULT_CONN.close()
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): Closed connection to database")
+
+        # Resplit database
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): Re-split database")
+        db_tools.db_user_resplit(self.USERNAME, self.SECRET)
+
+        # Re-connect to new database
+        db_tools.db_user_join_splits(self.app.USERNAME, self.app.SECRET)
+        self.VAULT_CONN = db_tools.db_user_connect(self.app.USERNAME, self.app.SECRET, self.app.PASSWORD)
+        self.VAULT_DB = self.VAULT_CONN.cursor()
+
+        # Refreshed tree
+        self.tree_refresh()
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): Refreshed tree")
+        self.app.add_note("✅ Saved changes to vault")
 
     def action_open_link(self, link: str) -> None:
         self.app.bell()

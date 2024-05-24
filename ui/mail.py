@@ -23,6 +23,8 @@ E-mail address automatically copied to clipboard.
 
 class TempMail(Screen):
     EMAILS_N = 0
+    TITLE = "CAVERNA"
+    SUB_TITLE = "TempMail"
     CSS = """
     RichLog {
         background: $surface;
@@ -72,6 +74,8 @@ class TempMail(Screen):
         self.refresh()
 
     def action_back(self) -> None:
+        self.app.title = "CAVERNA"
+        self.app.sub_title = "Menu"
         self.app.pop_screen()
 
     def action_show_tab(self, tab: str) -> None:

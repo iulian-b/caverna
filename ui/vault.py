@@ -268,6 +268,7 @@ class PasswordInfo(Container):
 class Vault(Screen):
     # CSS
     CSS_PATH = ["../css/login.tcss", "../css/vault.tcss"]
+    TITLE = "CAVERNA - Password Manager"
 
     # Authentication info
     USERNAME = None
@@ -287,6 +288,7 @@ class Vault(Screen):
     # Vault Database
     VAULT_CONN = None
     VAULT_DB = None
+
 
     def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG):
         if USERNAME is None and PASSWORD is None:
@@ -312,6 +314,8 @@ class Vault(Screen):
 
     def action_back(self) -> None:
         self.VAULT_CONN.close()
+        self.app.title = "CAVERNA"
+        self.app.sub_title = "Menu"
         self.app.pop_screen()
 
     # DEPRECATED
@@ -357,7 +361,7 @@ class Vault(Screen):
         tree.root.add_leaf(label="URLs")
         self.tree_initialize(tree)
         tree.root.expand()
-        self.sub_title = self.app.USERNAME
+        self.sub_title = self.USERNAME
 
         yield Container(
             Header(show_clock=True),
@@ -375,7 +379,7 @@ class Vault(Screen):
 
     def on_mount(self) -> None:
         self.query_one(Tree).focus()
-        self.app.add_note(f"🔑 Entered {self.app.USERNAME}'s Vault")
+        self.app.add_note(f"🔑 Entered {self.app.USERNAME}'s Password Vault")
         self.query_one(NewPasswordInfo).despawn()
         if self.app.DEBUG: self.app.add_note(
             f"[Vault].__init__(self, USERNAME, PASSWORD, DEBUG): opened vault with data: {self.USERNAME}, {self.PASSWORD}, {self.DEBUG}")
@@ -525,7 +529,6 @@ class Vault(Screen):
         else:
             self.app.add_note("[INSERT] Already in insert mode")
 
-    # NOT WORKING AS INTENDED
     def action_save(self) -> None:
         # Close connection to DB
         self.VAULT_CONN.commit()
@@ -579,7 +582,7 @@ class Vault(Screen):
             url = self.query_one(PasswordInfo).query_one("#input_url").value
             username = self.query_one(PasswordInfo).query_one("#input_username").value
             pyperclip.copy(username)
-            self.app.add_note(f"Copied username on -->{url} to clipboard")
+            self.app.add_note(f"📋 Copied username on -->{url} to clipboard")
 
     def action_clip_password(self) -> None:
         if self.query_one(PasswordInfo).has_class("-hidden"):
@@ -592,4 +595,4 @@ class Vault(Screen):
             url = self.query_one(PasswordInfo).query_one("#input_url").value
             password = self.query_one(PasswordInfo).query_one("#input_password").value
             pyperclip.copy(password)
-            self.app.add_note(f"Copied password on -->{url} to clipboard")
+            self.app.add_note(f"📋 Copied password on -->{url} to clipboard")
