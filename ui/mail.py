@@ -70,6 +70,8 @@ class TempMail(Screen):
 
     def _on_mount(self, event: events.Mount) -> None:
         pyperclip.copy(EMAIL_ADDRESS.address)
+        self.notify("✅ Email Address copied to clipboard", title="SUCCESS", severity="information", timeout=3)
+
         self.app.sub_title = "TempMail"
         self.refresh()
 

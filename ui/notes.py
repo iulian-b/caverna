@@ -456,6 +456,7 @@ class Notes(Screen):
         self.tree_refresh()
         if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): Refreshed tree")
         self.app.add_note("✅ Saved changes to vault")
+        self.app.notify("✅ Saved changes to vault", title="SUCCESS", severity="information", timeout=3)
 
     def action_open_link(self, link: str) -> None:
         self.app.bell()

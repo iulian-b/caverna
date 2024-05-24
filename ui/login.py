@@ -91,6 +91,7 @@ class LoginForm(Container):
                 self.input_uname.add_class("-invalid")
                 self.input_paswd.add_class("-invalid")
                 self.input_secret.add_class("-invalid")
+                self.notify("🚫 Incorrect credentials", title="ERROR", severity="error", timeout=3)
                 self.app.add_note("[LOGIN]: 🚫 FAILED (incorrect credentials)")
 
             # Type error (invalid username)
@@ -98,6 +99,7 @@ class LoginForm(Container):
                 self.input_uname.add_class("-invalid")
                 self.input_paswd.add_class("-invalid")
                 self.input_secret.add_class("-invalid")
+                self.notify("🚫 Incorrect credentials", title="ERROR", severity="error", timeout=3)
                 self.app.add_note("[LOGIN]: 🚫 FAILED (incorrect credentials)")
 
 

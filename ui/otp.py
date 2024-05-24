@@ -81,6 +81,7 @@ class Issuer(Static):
         self.show_code()
         pyperclip.copy(self.totp.now())
         self.app.add_note("📋 Code copied to clipboard")
+        self.app.notify("📋 Code copied to clipboard", title=self.issuer, severity="information", timeout=3)
 
     @on(Button.Pressed, "#btn_remove")
     def remove_pressed(self, event: Button.Pressed) -> None:
@@ -96,6 +97,8 @@ class Issuer(Static):
         if root.DEBUG: root.add_note("[Issuer]on_button_pressed(self, event: Button.Pressed): cleared issuers")
         root.refresh_issuers()
         if root.DEBUG: root.add_note("[Issuer]on_button_pressed(self, event: Button.Pressed): refreshed issuers")
+        self.app.add_note("✅ Saved changes to vault")
+        self.app.notify("✅ Saved changes to vault", title="SUCCESS", severity="information", timeout=3)
 
 
 class OTP(Screen):
@@ -189,7 +192,6 @@ class OTP(Screen):
         db_tools.db_user_join_splits(self.app.USERNAME, self.app.SECRET)
         self.VAULT_CONN = db_tools.db_user_connect(self.app.USERNAME, self.app.SECRET, self.app.PASSWORD)
         self.VAULT_DB = self.VAULT_CONN.cursor()
-        self.app.add_note("✅ Saved changes to vault")
 
     def on_mount(self) -> None:
         self.app.add_note(f"🔑 Entered {self.app.USERNAME}'s OTP Vault")
@@ -250,6 +252,7 @@ class OTP(Screen):
         if res[0] == "" or res[1] == "": return
         if len(res[1]) % 4 != 0:
             self.app.add_note(f"[ERROR] ❗ Error in adding issuer: incorrect secret length")
+            self.app.notify("❗ Error in adding issuer", title="ERROR", severity="error", timeout=3)
             return
 
         issuer = res[0]
@@ -263,6 +266,7 @@ class OTP(Screen):
                 f"[OTP].action_add_issuer(self): sent query {db_tools.sql_otp('insert_new', (issuer, secret))}")
         except Exception as e:
             self.app.add_note(f"[ERROR] ❗ Error in adding issuer: {e}")
+            self.app.notify("❗ Error in adding issuer", title="ERROR", severity="error", timeout=3)
 
         # Add new entry to interface
         new = Issuer(issuer, secret)

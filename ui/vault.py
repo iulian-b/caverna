@@ -82,9 +82,12 @@ class NewPasswordInfo(Container):
             self.screen.VAULT_CONN.commit()
             self.app.add_note(
                 f"[INSERT] Inserted data UNAME:({inp_uname}) PASWD:({inp_pwd}) for new entry on -->{inp_url}")
+            self.app.notify("Added new entry", title="INSERT", severity="warning", timeout=3)
+
         except Exception as e:
             self.app.bell()
             self.app.add_note("[ERROR] ❗ Failed to add new entry")
+            self.app.notify("❗ Failed to add new entry", title="ERROR", severity="error", timeout=3)
             self.app.add_note(e)
 
         self.despawn()
@@ -231,6 +234,7 @@ class PasswordInfo(Container):
         except Exception as e:
             self.app.bell()
             self.app.add_note("[ERROR] ❗ Failed to edit entry")
+            self.app.notify("❗ Failed to add new entry", title="ERROR", severity="error", timeout=3)
             self.app.add_note(str(e))
 
     @on(Button.Pressed, "#delete_btn")
@@ -253,6 +257,7 @@ class PasswordInfo(Container):
         except Exception as e:
             self.app.bell()
             self.app.add_note("[ERROR] ❗ Failed to remove entry")
+            self.app.notify("❗ Failed to remove entry", title="ERROR", severity="error", timeout=3)
             self.app.add_note(str(e))
 
         self.screen.tree_refresh()
@@ -552,6 +557,7 @@ class Vault(Screen):
         self.tree_refresh()
         if self.app.DEBUG: self.app.add_note(f"[Vault].action_save(self): Refreshed tree")
         self.app.add_note("✅ Saved changes to vault")
+        self.app.notify("✅ Saved changes to vault", title="SUCCESS", severity="information", timeout=3)
 
     def action_safe_exit(self) -> None:
         try:
@@ -583,6 +589,7 @@ class Vault(Screen):
             username = self.query_one(PasswordInfo).query_one("#input_username").value
             pyperclip.copy(username)
             self.app.add_note(f"📋 Copied username on -->{url} to clipboard")
+            self.app.notify("📋 Username copied to clipboard", severity="warning", timeout=3)
 
     def action_clip_password(self) -> None:
         if self.query_one(PasswordInfo).has_class("-hidden"):
@@ -596,3 +603,5 @@ class Vault(Screen):
             password = self.query_one(PasswordInfo).query_one("#input_password").value
             pyperclip.copy(password)
             self.app.add_note(f"📋 Copied password on -->{url} to clipboard")
+            self.app.notify("📋 Password copied to clipboard", severity="warning", timeout=3)
+
