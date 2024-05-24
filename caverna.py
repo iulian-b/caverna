@@ -271,7 +271,9 @@ def main():
     if menu_res == 0:
         if os.path.exists(userpath):
             os.remove(userpath)
-        if DEBUG: print(f"[ui_menu()] Deleted {USERNAME} database")
+            if DEBUG: print(f"[ui_menu()] Deleted {USERNAME} database")
+        sync_tools.sync_obfuscate_all_fragments("caves")
+        if DEBUG:print(f"[ui_menu()] obfuscated all files")
 
 
 ########################################################################################################################

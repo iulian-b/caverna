@@ -3,6 +3,7 @@ import os
 import subprocess
 import platform
 import time
+from ctypes import windll, wintypes, byref
 
 NETWORK_NAME = " "
 
@@ -60,3 +61,30 @@ def sync_check_network():
         print("connected to speccific wifi")
     else:
         print("not connected")
+
+
+########################################################################################################################
+def sync_obfuscate_mtime_atime(filepath):
+    os.utime(filepath, (946677600, 946677600))
+
+
+########################################################################################################################
+def sync_obfuscate_ctime(filepath):
+    # Convert Unix timestamp to Windows FileTime using some magic numbers
+    # See documentation: https://support.microsoft.com/en-us/help/167296
+    timestamp = int(125911512000000000)
+    ctime = wintypes.FILETIME(timestamp & 0xFFFFFFFF, timestamp >> 32)
+
+    # Call Win32 API to modify the file creation date
+    handle = windll.kernel32.CreateFileW(filepath, 256, 0, None, 3, 128, None)
+    windll.kernel32.SetFileTime(handle, byref(ctime), None, None)
+    windll.kernel32.CloseHandle(handle)
+
+
+########################################################################################################################
+def sync_obfuscate_all_fragments(dir):
+    files = os.listdir(dir)
+    for f in files:
+        fpath = f"{dir}/{f.title()}"
+        sync_obfuscate_ctime(fpath)
+        sync_obfuscate_mtime_atime(fpath)
