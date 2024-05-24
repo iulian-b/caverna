@@ -21,8 +21,8 @@ from textual.widgets import (
 )
 
 # Caverna
-import utils.db_tools as db_tools
-from ui.utils import Body, Section
+from utils import db_tools as db_tools
+from utils.ui_utils import Body, Section
 
 
 ########################################################################################################################

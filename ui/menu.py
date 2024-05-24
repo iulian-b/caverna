@@ -16,7 +16,7 @@ from textual.widgets import (
 )
 
 # Caverna
-from ui.utils import (
+from utils.ui_utils import (
     Sidebar,
     Body,
     Section,

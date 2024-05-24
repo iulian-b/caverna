@@ -22,8 +22,8 @@ from textual.widgets import (
 )
 
 # Caverna Packages
-import utils.db_tools as db_tools
-from ui.utils import (
+from utils import db_tools as db_tools
+from utils.ui_utils import (
     Sidebar,
     Body,
     Section,

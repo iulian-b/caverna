@@ -20,9 +20,9 @@ from textual.widgets import (
 )
 
 # Caverna
-import utils.db_tools as db_tools
-import utils.pwd_tools as pwd_tools
-from ui.utils import (
+from utils import db_tools as db_tools
+from utils import pwd_tools as pwd_tools
+from utils.ui_utils import (
     Body,
     Section,
 )

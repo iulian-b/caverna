@@ -6,7 +6,7 @@ from rich.console import RenderableType
 from textual import work, on
 
 # Textual
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import ScrollableContainer, Container, Grid
 from textual.css.query import NoMatches
@@ -15,7 +15,7 @@ from textual.widgets import Button, Footer, Header, Static, RichLog, Digits, Pro
 from textual.timer import Timer
 
 # CAVERNA
-import utils.db_tools as db_tools
+from utils import db_tools as db_tools
 
 
 class AddOTP(ModalScreen):

@@ -6,7 +6,7 @@ import random
 from rich.console import RenderableType
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Grid
-from textual.screen import Screen, ModalScreen
+from textual.screen import ModalScreen
 from textual.widgets import Static, Switch, Button, Label
 
 # The cool ascii art logo
@@ -27,8 +27,8 @@ SUB_LIST = ['Powered by argon2', 'No place like 127.0.0.1', '100% FOSS', 'Better
 LOGO_SUB = "\n" + random.choice(SUB_LIST)
 
 # Version
-VERSION = 'v0.9a'
-VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.23.5 | iulian(iulian@firemail.cc) ~"
+VERSION = 'v0.9c'
+VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.24.5 | iulian(iulian@firemail.cc) ~"
 
 # Sidebar message
 SBMESSAGE = """

@@ -2,7 +2,6 @@
 import os
 import sys
 import argparse
-import atexit
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -11,9 +10,8 @@ from getpass import getpass
 # Caverna classes
 import ui.login
 import ui.vault
-import ui.utils
 import ui.menu
-from utils import db_tools, pwd_tools, sync_tools
+from utils import db_tools, pwd_tools, sync_tools, ui_utils
 
 ########################################################################################################################
 def main():
@@ -36,8 +34,8 @@ def main():
     ########################################################################################################################
     # Argument --version
     if args.version:
-        print(ui.utils.LOGO_ASCII)
-        print(ui.utils.VERSION_LONG)
+        print(ui_utils.LOGO_ASCII)
+        print(ui_utils.VERSION_LONG)
         sys.exit()
 
     ########################################################################################################################
@@ -164,10 +162,10 @@ def main():
             if DEBUG: print(f"[args.changepwd] Connected to db")
 
             # Get all of the encrypted passwords and their nonces
-            c.execute(db_tools.sql("select_all_paswd_crypto", ""))
+            c.execute(db_tools.sql_pwd("select_all_paswd_crypto", ""))
             res = c.fetchall()
             if DEBUG: print(
-                f"[args.changepwd] Executed query: {db_tools.sql('select_all_paswd_crypto', '')}")
+                f"[args.changepwd] Executed query: {db_tools.sql_pwd('select_all_paswd_crypto', '')}")
 
             # Get the old key from the old mpwd hash
             old_key = pwd_tools.pwd_encrypt_key(control_hash)
@@ -201,9 +199,9 @@ def main():
                     f"[args.changepwd] encypted old password with new key {OLD_PASSWORDS_D[i]} -> {new_ciphertext} new nonce: {new_nonce}")
 
                 # Update the old encrypted password and nonces in the user's db with the new ones
-                c.execute(db_tools.sql("update_crypto", (new_ciphertext, new_nonce, OLD_PASSWORDS_E[i], OLD_NONCES[i])))
+                c.execute(db_tools.sql_pwd("update_crypto", (new_ciphertext, new_nonce, OLD_PASSWORDS_E[i], OLD_NONCES[i])))
                 if DEBUG: print(
-                    f"[args.changepwd] Executed query: {db_tools.sql('update_crypto', (new_ciphertext, new_nonce, OLD_PASSWORDS_E[i], OLD_NONCES[i]))}")
+                    f"[args.changepwd] Executed query: {db_tools.sql_pwd('update_crypto', (new_ciphertext, new_nonce, OLD_PASSWORDS_E[i], OLD_NONCES[i]))}")
                 if DEBUG: print(
                     f"[args.changepwd] Updated old encrypted pw({OLD_PASSWORDS_E[i]} -> {new_ciphertext}) and nonce({OLD_NONCES[i]} -> {new_nonce})")
 
@@ -245,14 +243,22 @@ def main():
     login_res = ui_login.run()
     ui_login.exit()
 
+    USERNAME = ""
+    PASSWORD = ""
+    SECRET = ""
+
     # Get the inputted username and master password
-    if login_res[0] is not None:
-        USERNAME = login_res[0]
-        PASSWORD = login_res[1]
-        SECRET = login_res[2]
-    else:
-        if DEBUG: print(f"[ui_login()] Minor Exception: Finished executing with None")
-    if DEBUG: print(f"[ui_login()] Finished executing login with results: {USERNAME}, {PASSWORD}, {SECRET}")
+    try:
+        if login_res[0] is not None:
+            USERNAME = login_res[0]
+            PASSWORD = login_res[1]
+            SECRET = login_res[2]
+        else:
+            if DEBUG: print(f"[ui_login()] Minor Exception: Finished executing with None")
+        if DEBUG: print(f"[ui_login()] Finished executing login with results: {USERNAME}, {PASSWORD}, {SECRET}")
+    except Exception as e:
+        if DEBUG: print(f"[ui_login()]: execution aborted")
+        sys.exit()
 
     # Safe remove user database before initializing vault
     userpath = f"caves/{USERNAME}.cvrn"
