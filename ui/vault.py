@@ -102,7 +102,7 @@ class NewPasswordInfo(Container):
         if self.app.DEBUG: self.app.add_note(
             f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
         self.app.add_note("[INSERT] Exited insert mode")
-        self.sub_title = self.app.USERNAME
+        self.sub_title = "Password Manager"
 
     @on(Button.Pressed, "#cancel_btn")
     def cancel_pressed(self, event: Button.Pressed) -> None:
@@ -118,7 +118,7 @@ class NewPasswordInfo(Container):
         if self.app.DEBUG: self.app.add_note(
             f"[NewPasswordInfo].on_button_press(self, event: Button.Pressed): re-enabled Tree")
         self.app.add_note("[INSERT] Exited insert mode")
-        self.sub_title = self.app.USERNAME
+        self.sub_title = "Password Manager"
 
 
 ########################################################################################################################
@@ -244,12 +244,12 @@ class PasswordInfo(Container):
             f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): pressed {btn}")
         sel_url = self.query_one("#input_url").value
         sel_uname = self.query_one("#input_username").value
-        sel_pwd = self.query_one("#input_password").value
+        # sel_pwd = self.query_one("#input_password").value
 
         try:
-            self.screen.VAULT_DB.execute(db_tools.sql_pwd("delete", (sel_url, sel_uname, sel_pwd)))
+            self.screen.VAULT_DB.execute(db_tools.sql_pwd("delete", (sel_url, sel_uname)))
             if self.app.DEBUG: self.app.add_note(
-                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql_pwd('delete', (sel_url, sel_uname, sel_pwd))}")
+                f"[PasswordInfo].on_button_pressed(self, event: Button.Pressed): executed query {db_tools.sql_pwd('delete', (sel_url, sel_uname))}")
 
             self.screen.VAULT_CONN.commit()
             self.app.add_note(f"[EDIT] Removed entry on -->{sel_url} with username ({sel_uname})")
@@ -273,7 +273,8 @@ class PasswordInfo(Container):
 class Vault(Screen):
     # CSS
     CSS_PATH = ["../css/login.tcss", "../css/vault.tcss"]
-    TITLE = "CAVERNA - Password Manager"
+    TITLE = "CAVERNA"
+    SUB_TITLE = "Password Manager"
 
     # Authentication info
     USERNAME = None
@@ -366,7 +367,6 @@ class Vault(Screen):
         tree.root.add_leaf(label="URLs")
         self.tree_initialize(tree)
         tree.root.expand()
-        self.sub_title = self.USERNAME
 
         yield Container(
             Header(show_clock=True),
@@ -478,7 +478,7 @@ class Vault(Screen):
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): hid PasswordInfo buttons")
             pwinfo.disable()
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): disabled PasswordInfo")
-            self.sub_title = self.app.USERNAME
+            self.sub_title = "Password Manager"
             return
 
         if self.EDITING:
@@ -489,7 +489,7 @@ class Vault(Screen):
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): disabled PasswordInfo")
             pwinfo.STORED = True
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): PasswordInfo STORED -> True")
-            self.sub_title = self.app.USERNAME
+            self.sub_title = "Password Manager"
             self.EDITING = False
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): EDITING -> False")
 
@@ -503,7 +503,7 @@ class Vault(Screen):
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): stored PasswordInfo inputs")
             pwinfo.STORED = False
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): PasswordInfo STORED -> True")
-            self.sub_title = f"{self.app.USERNAME}: Edit"
+            self.sub_title = "Password Manager: Edit"
             self.EDITING = True
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_edit(self): EDITING -> True")
 
@@ -513,7 +513,7 @@ class Vault(Screen):
             self.INSERTING = True
             if self.app.DEBUG: self.app.add_note(f"[Vault].action_pwd_add(self): INSERTING -> True")
             self.app.add_note("[INSERT] Insert mode")
-            self.sub_title = f"{self.app.USERNAME}: Insert"
+            self.sub_title = "Password Manager: Insert"
 
             pwi = self.query_one(PasswordInfo)
             pwi.disable()

@@ -109,7 +109,7 @@ class Login(App[list]):
     TITLE = "CAVERNA"
     SUB_TITLE = "Login"
     BINDINGS = [
-        ("f1", "app.toggle_class('RichLog', '-hidden')", "❗ Log"),
+        ("f1", "app.toggle_class('RichLog', '-hidden')", "❗Log"),
         ("f5", "toggle_sidebar", "🌐 About"),
         ("f9", "app.toggle_dark", "🎨 Theme"),
         Binding("ctrl+q", "app.quit", "⛔ Exit", show=True),

@@ -64,12 +64,12 @@ def sync_check_network():
 
 
 ########################################################################################################################
-def sync_obfuscate_mtime_atime(filepath):
+def syncWIN32_obfuscate_mtime_atime(filepath):
     os.utime(filepath, (946677600, 946677600))
 
 
 ########################################################################################################################
-def sync_obfuscate_ctime(filepath):
+def syncWIN32_obfuscate_ctime(filepath):
     # Convert Unix timestamp to Windows FileTime using some magic numbers
     # See documentation: https://support.microsoft.com/en-us/help/167296
     timestamp = int(125911512000000000)
@@ -83,8 +83,29 @@ def sync_obfuscate_ctime(filepath):
 
 ########################################################################################################################
 def sync_obfuscate_all_fragments(dir):
+    # Get all files in directory
     files = os.listdir(dir)
-    for f in files:
-        fpath = f"{dir}/{f.title()}"
-        sync_obfuscate_ctime(fpath)
-        sync_obfuscate_mtime_atime(fpath)
+
+    # If the platform is Windows
+    if platform.system() == "Windows":
+        for f in files:
+            # Get a filepath
+            fpath = f"{dir}/{f.title()}"
+
+            # Obfuscate creation time
+            syncWIN32_obfuscate_ctime(fpath)
+
+            # Obfuscate modification and access times
+            syncWIN32_obfuscate_mtime_atime(fpath)
+
+    # If the platform is Linux
+    elif platform.system() == "Linux":
+        for f in files:
+            # Get a filepath
+            fpath = f"{dir}/{f.title()}"
+
+            # Obfuscate modification and access times
+            os.utime(fpath, (946677600, 946677600))
+
+            # Linux does not have creation time
+            # :)

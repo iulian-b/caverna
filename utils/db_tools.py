@@ -320,8 +320,10 @@ def sql_pwd(query, args):
 
         # [DELETE QUERIES]
         # DELETE a row from the vault
+        # case "delete":
+        #     return f"DELETE FROM passwords WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\' AND PASWD = \'{args[2]}\'"
         case "delete":
-            return f"DELETE FROM passwords WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\' AND PASWD = \'{args[2]}\'"
+            return f"DELETE FROM passwords WHERE URL = \'{args[0]}\' AND UNAME = \'{args[1]}\'"
 
 
 def sql_stash(query, args):
@@ -372,7 +374,7 @@ def sql_otp(query, args):
 
         # [INSERT QUERIES]
         # INSERT a new row into the vault
-        case "insert_new":
+        case "insert":
             return f"INSERT INTO otp(ISSUER, SECRET) VALUES (\'{args[0]}\', \'{args[1]}\')"
 
         # [DELETE QUERIES]

@@ -134,7 +134,8 @@ class Notes(Screen):
     # Flags
     EDITING = False
     UNSAVED = False
-
+    TITLE = "CAVERNA"
+    SUB_TITLE = "Notes"
     # Notes Tree
     TREE_NOTES = []
 
@@ -157,7 +158,7 @@ class Notes(Screen):
         Binding(key="f1", action="app.toggle_class('RichLog', '-hidden')", description="❗ Log"),
         Binding(key="f5", action="save", priority=True, description="💾 Save"),
 
-        Binding(key="f9", action="note_edit", description="🔄 Edit"),
+        Binding(key="f8", action="note_edit", description="🔄 Edit"),
         Binding(key="ctrl+a", action="note_add", description="🆕 Insert"),
         Binding(key="ctrl+r", action="note_delete", description="⛔ Delete"),
         Binding(key="ctrl+q", action="back", priority=True, description="🔙 Back"),
