@@ -21,7 +21,7 @@ from textual.widgets import (
 )
 
 # Caverna
-from utils import db_tools as db_tools
+from utils import db_tools as db_tools, pwd_tools
 from utils.ui_utils import Body, Section
 
 
@@ -267,20 +267,33 @@ class Notes(Screen):
             if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): cleared file label")
             return
 
+        # Select note from database
         self.app.add_note(f"--> {node_label}")
         self.VAULT_DB.execute(db_tools.sql_notes("select", node_label))
         self.VAULT_CONN.commit()
+
+        # Prepare for decryption
         note = self.VAULT_DB.fetchall()
         node_content = note[0]
+        nonce = node_content[3]
+        ciphertext = node_content[2]
+        key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
+        plaintext = ""
+
+        # Decrypt
+        if nonce is None:
+            plaintext = ciphertext
+        else:
+            plaintext = pwd_tools.pwd_decrypt(ciphertext, nonce, key)
 
         # First run
         if not self.EDITING:
             txtView.spawn()
             if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): spawned TextView")
 
-        txtEdit.set_content(node_content[-1])
+        txtEdit.set_content(plaintext)
         if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): updated TextEdit")
-        txtView.set_content(node_content[-1])
+        txtView.set_content(plaintext)
         if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): updated TextView")
 
     def action_note_edit(self) -> None:
@@ -361,7 +374,7 @@ class Notes(Screen):
         tree = self.query_one(Tree)
 
         # Wait for user input
-        self.sub_title = f"{self.app.USERNAME}: Insert"
+        self.sub_title = "Notes: Insert"
         filename = await self.app.push_screen_wait(AddNote())
         if self.app.DEBUG: self.app.add_note(f"[Notes].action_note_add(self): @awaited filename from AddNote()")
 
@@ -380,12 +393,19 @@ class Notes(Screen):
         last_index = len(self.TREE_NOTES) + 2
         tree.cursor_line = last_index
 
-        # Insert row into database
+        # Encrypt data
         dummy_markdown= f"""# {filename} (New Note)"""
+        key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_note_add(self): encrypted key({key.decode('ISO-8859-1')}")
+
+        ciphertext, nonce = pwd_tools.pwd_encrypt(dummy_markdown, key)
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_noe_add(self): encrypted note with nonce({nonce})")
+
+        # Insert row into database
         try:
-            self.VAULT_DB.execute(db_tools.sql_notes("insert_new", (filename, dummy_markdown)))
+            self.VAULT_DB.execute(db_tools.sql_notes("insert", (filename, ciphertext, nonce)))
             self.VAULT_CONN.commit()
-            if self.app.DEBUG: self.app.add_note(f"[Notes].action_note_add(self): sent query {db_tools.sql_notes('insert_new',(filename, '[CONTENT]'))}")
+            if self.app.DEBUG: self.app.add_note(f"[Notes].action_note_add(self): sent query {db_tools.sql_notes('insert',(filename, ciphertext, nonce))}")
         except Exception as e:
             self.app.add_note(f"[ERROR] ❗ Error in adding file: {e}")
 
@@ -433,10 +453,14 @@ class Notes(Screen):
         selected_md = txtEdit.get_content()
         if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): retireved content from TextEdit")
 
+        # Encrypt
+        key = pwd_tools.pwd_encrypt_key(self.app.PASSWORD)
+        ciphertext, nonce = pwd_tools.pwd_encrypt(selected_md, key)
+
         # Update row in database
-        self.VAULT_DB.execute(db_tools.sql_notes("update_content", (selected_md, node_label)))
+        self.VAULT_DB.execute(db_tools.sql_notes("update_content", (ciphertext, nonce, node_label)))
         self.VAULT_CONN.commit()
-        if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): sent query: {db_tools.sql_notes('update_content', ('[CONTENT]', node_label))}")
+        if self.app.DEBUG: self.app.add_note(f"[Notes].action_save(self): sent query: {db_tools.sql_notes('update_content', (ciphertext, nonce, node_label))}")
 
         self.UNSAVED = True
 

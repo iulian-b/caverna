@@ -95,6 +95,7 @@ class Issuer(Static):
 
         root.clear_issuers()
         if root.DEBUG: root.add_note("[Issuer]on_button_pressed(self, event: Button.Pressed): cleared issuers")
+        root.save()
         root.refresh_issuers()
         if root.DEBUG: root.add_note("[Issuer]on_button_pressed(self, event: Button.Pressed): refreshed issuers")
         self.app.add_note("✅ Saved changes to vault")
@@ -180,6 +181,7 @@ class OTP(Screen):
         except Exception as e:
             self.app.add_note(f"[ERROR] failed to add entry: {e}")
 
+    def save(self) -> None:
         # Close connection to DB
         self.VAULT_CONN.close()
         if self.app.DEBUG: self.app.add_note(f"[OTP].refresh_issuers(self): Closed connection to database")
@@ -233,17 +235,17 @@ class OTP(Screen):
 
         # Check if completed
         if bar.progress >= 60.0:
-            if self.app.DEBUG: self.app.add_note("[OTP].make_progress: completed progress")
+            if self.app.DEBUG: self.screen.add_note("[OTP].make_progress: completed progress")
 
             # Reset progress
             bar.progress = 0.0
-            if self.app.DEBUG: self.app.add_note("[OTP].make_progress: reset progress to 0%")
+            if self.app.DEBUG: self.screen.add_note("[OTP].make_progress: reset progress to 0%")
 
             # Update TOTP code
             if len(self.ISSUERS) >= 1:
                 code = self.query_one(Issuer)
                 code.update_code()
-                if self.app.DEBUG: self.app.add_note("[OTP].make_progress: updated totp code")
+                if self.app.DEBUG: self.screen.add_note("[OTP].make_progress: updated totp code")
 
     @work
     async def action_add_issuer(self) -> None:
@@ -260,10 +262,10 @@ class OTP(Screen):
 
         # Add new entry to user database
         try:
-            self.VAULT_DB.execute(db_tools.sql_otp("insert_new", (issuer, secret)))
+            self.VAULT_DB.execute(db_tools.sql_otp("insert", (issuer, secret)))
             self.VAULT_CONN.commit()
             if self.app.DEBUG: self.app.add_note(
-                f"[OTP].action_add_issuer(self): sent query {db_tools.sql_otp('insert_new', (issuer, secret))}")
+                f"[OTP].action_add_issuer(self): sent query {db_tools.sql_otp('insert', (issuer, secret))}")
         except Exception as e:
             self.app.add_note(f"[ERROR] ❗ Error in adding issuer: {e}")
             self.app.notify("❗ Error in adding issuer", title="ERROR", severity="error", timeout=3)
@@ -271,6 +273,7 @@ class OTP(Screen):
         # Add new entry to interface
         new = Issuer(issuer, secret)
         await self.app.query_one("#otp_container").mount(new)
-        self.app.refresh()
+        self.screen.save()
+        self.screen.refresh()
 
     # BTM5DBJYSVPPP4MU

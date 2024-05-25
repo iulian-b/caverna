@@ -1,7 +1,10 @@
 # Packages
 import os
+import random
+
 from pysqlcipher3 import dbapi2 as sqlcipher
 from utils import sync_tools
+from utils import pwd_tools
 
 
 ########################################################################################################################
@@ -57,7 +60,7 @@ def db_user_join_splits(user, secret):
     # Counter
     counter = 0
 
-    while(1):
+    while (1):
         # Generate hash with the user + pepper + n
         split_filename = sync_tools.sync_hash_user(user + secret + str(counter))
 
@@ -79,7 +82,6 @@ def db_user_join_splits(user, secret):
 
     file_joint.close()
     # return file_joint
-
 
 
 ########################################################################################################################
@@ -206,7 +208,7 @@ def db_user_initialize(user, mpwd):
     c.execute("""CREATE TABLE passwords (
 	    ID INTEGER PRIMARY KEY,
    	    URL TEXT NOT NULL,
-	    UNAME TEXT,
+	    UNAME TEXT NOT NULL,
 	    PASWD TEXT NOT NULL,
 	    NONCE TEXT
     )""")
@@ -216,7 +218,8 @@ def db_user_initialize(user, mpwd):
     c.execute("""CREATE TABLE notes (
     	    ID INTEGER PRIMARY KEY,
        	    FILENAME TEXT NOT NULL UNIQUE,
-    	    CONTENT TEXT
+    	    CONTENT TEXT,
+    	    NONCE TEXT
     )""")
     conn.commit()
 
@@ -224,10 +227,28 @@ def db_user_initialize(user, mpwd):
     c.execute("""CREATE TABLE otp (
     	    ID INTEGER PRIMARY KEY,
        	    ISSUER TEXT NOT NULL,
-    	    SECRET TEXT NOT NULL
+    	    SECRET TEXT NOT NULL,
+    	    NONCE TEXT
     )""")
     conn.commit()
 
+    # # Execute the CREATE TABLE query for the Entropy vault
+    # c.execute("""CREATE TABLE junk (
+    #         ID INTEGER PRIMARY KEY,
+    #         PARAM1 TEXT,
+    #         PARAM2 TEXT,
+    #         PARAM3 TEXT
+    # )""")
+    # conn.commit()
+    #
+    # # Randomly fill entropy table
+    # for i in range(random.randint(1, 25)):
+    #     param1 = pwd_tools.pwd_gen(25)
+    #     param2 = pwd_tools.pwd_gen(25)
+    #     param3 = pwd_tools.pwd_gen(25)
+    #
+    #     c.execute(f"INSERT INTO junk(PARAM1, PARAM2, PARAM3) VALUES(\'{param1}\', \'{param2}\', \'{param3}\')")
+    #     conn.commit()
 
     # Terminate the connection
     c.close()
@@ -343,6 +364,9 @@ def sql_notes(query, args):
         # SELECT every row from the vault
         case "print":
             return "SELECT FILENAME, CONTENT FROM notes"
+        # SELET the nonce of a specific file
+        case "select_nonce":
+            return f"SELECT NONCE FROM notes WHERE FILENAME = \'{args}\'"
 
         # [UPDATE QUERIES]
         # UPDATE the filename of a row
@@ -350,17 +374,18 @@ def sql_notes(query, args):
             return f"UPDATE notes SET FILENAME = \'{args[0]}\' WHERE FILENAME = \'{args[1]}\'"
         # UPDATE the content of a row
         case "update_content":
-            return f"UPDATE notes SET CONTENT = \'{args[0]}\' WHERE FILENAME = \'{args[1]}\'"
+            return f"UPDATE notes SET CONTENT = \'{args[0]}\', NONCE = \'{args[1]}\' WHERE FILENAME = \'{args[2]}\'"
 
         # [INSERT QUERIES]
         # INSERT a new row into the vault
-        case "insert_new":
-            return f"INSERT INTO notes(FILENAME, CONTENT) VALUES (\'{args[0]}\', \'{args[1]}\')"
+        case "insert":
+            return f"INSERT INTO notes(FILENAME, CONTENT, NONCE) VALUES (\'{args[0]}\', \'{args[1]}\', \'{args[2]}\')"
 
         # [DELETE QUERIES]
         # DELETE a row from the vault
         case "delete":
             return f"DELETE FROM notes WHERE FILENAME = \'{args}\'"
+
 
 def sql_otp(query, args):
     match query:

@@ -1,8 +1,5 @@
-import platform
+import random
 
-print(platform.system())
-
-if platform.system() == "Windows":
-    print("W")
-else:
-    print("L")
+iters = random.randint(1,25)
+for i in range(iters):
+    print(i)
