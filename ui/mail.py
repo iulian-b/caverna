@@ -1,14 +1,14 @@
+# Packages
 import pyperclip
-from textual.binding import Binding
-from textual.containers import Container
-from textual.screen import Screen
 
+# Textual Packages
+from textual.binding import Binding
+from textual.screen import Screen
 from textual import events
 from textual.app import ComposeResult
-from textual.widgets import Label, Markdown, TabbedContent, TabPane, Footer, Header, RichLog
+from textual.widgets import Label, Markdown, TabbedContent, TabPane, Footer, Header
 from tempmail import EMail
 
-# EMAIL_ADDRESS = "TEST@TEST.RO"
 EMAIL_ADDRESS = EMail()
 MD_ADDRESS = f"""
 # {EMAIL_ADDRESS.address}

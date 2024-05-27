@@ -1,4 +1,5 @@
 # Packages
+import datetime
 import os
 import random
 
@@ -232,23 +233,23 @@ def db_user_initialize(user, mpwd):
     )""")
     conn.commit()
 
-    # # Execute the CREATE TABLE query for the Entropy vault
-    # c.execute("""CREATE TABLE junk (
-    #         ID INTEGER PRIMARY KEY,
-    #         PARAM1 TEXT,
-    #         PARAM2 TEXT,
-    #         PARAM3 TEXT
-    # )""")
-    # conn.commit()
-    #
-    # # Randomly fill entropy table
-    # for i in range(random.randint(1, 25)):
-    #     param1 = pwd_tools.pwd_gen(25)
-    #     param2 = pwd_tools.pwd_gen(25)
-    #     param3 = pwd_tools.pwd_gen(25)
-    #
-    #     c.execute(f"INSERT INTO junk(PARAM1, PARAM2, PARAM3) VALUES(\'{param1}\', \'{param2}\', \'{param3}\')")
-    #     conn.commit()
+    # Execute the CREATE TABLE query for the Entropy vault
+    c.execute("""CREATE TABLE junk (
+            ID INTEGER PRIMARY KEY,
+            PARAM1 TEXT,
+            PARAM2 TEXT,
+            PARAM3 TEXT
+    )""")
+    conn.commit()
+
+    # Randomly fill entropy table
+    for i in range(random.randint(1, 25)):
+        param1 = pwd_tools.pwd_gen(25)
+        param2 = pwd_tools.pwd_gen(25)
+        param3 = pwd_tools.pwd_gen(25)
+
+        c.execute(f"INSERT INTO junk(PARAM1, PARAM2, PARAM3) VALUES(\'{param1}\', \'{param2}\', \'{param3}\')")
+        conn.commit()
 
     # Terminate the connection
     c.close()
@@ -267,8 +268,11 @@ def db_add_user(user, mpwd_hash):
     # Hash the username
     username = sync_tools.sync_hash_user(user)
 
+    # Get the current timestamp as the LAD
+    timestamp = datetime.datetime.now()
+
     # Execute the INSERT query which adds the username and mpwd hash to the 'users' table
-    c.execute(f"INSERT INTO users(USER, MPWD) VALUES(\'{username}\', \'{mpwd_hash}\')")
+    c.execute(f"INSERT INTO users(USER, MPWD, LAD) VALUES(\'{username}\', \'{mpwd_hash}\', \'{timestamp}\')")
 
     # Terminate the connection
     conn.commit()
@@ -296,8 +300,6 @@ def db_user_get_hash(user):
     # Return the hash
     return mpwd_hash[0]
 
-
-# def db_split_db(user):
 
 
 ########################################################################################################################
@@ -349,10 +351,18 @@ def sql_pwd(query, args):
 
 def sql_stash(query, args):
     match query:
+        # [SELECT QUERIES]
+        # Get the Last Accessed Date of a specified user
+        case "get_lad":
+            return f"SELECT LAD FROM users WHERE USER = \'{args}\'"
+
         # [UPDATE QUERIES]
         # UPDATE a row from the users database
         case "update_user":
-            return f"UPDATE users SET MPWD = \'{args[1]}\' WHERE USER = \'{args[0]}\'"
+            return f"UPDATE users SET MPWD = \'{args[0]}\' WHERE USER = \'{args[1]}\'"
+        # Set the Last Accessed Date of a specified user
+        case "set_lad":
+            return f"UPDATE users SET LAD = \'{args[0]}\' WHERE USER = \'{args[1]}\'"
 
 
 def sql_notes(query, args):

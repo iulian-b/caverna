@@ -3,9 +3,9 @@ import pyotp
 import pyperclip
 from datetime import datetime
 from rich.console import RenderableType
-from textual import work, on
 
 # Textual
+from textual import work, on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import ScrollableContainer, Container, Grid

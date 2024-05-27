@@ -1,7 +1,7 @@
 # Packages
 import sys
 
-# Textual
+# Textual Packages
 from rich.console import RenderableType
 from textual import work
 from textual.app import ComposeResult
@@ -126,7 +126,7 @@ class Notes(Screen):
     SECRET = None
 
     # Network SSID
-    SSID = "Net"
+    NETWORK = None
 
     # Debug
     DEBUG = False
@@ -143,13 +143,14 @@ class Notes(Screen):
     VAULT_CONN = None
     VAULT_DB = None
 
-    def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG):
+    def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG, NETWORK):
         if USERNAME is None and PASSWORD is None:
             sys.exit("[ERROR]: Login module skipped. Aborting")
         self.DEBUG = DEBUG
         self.USERNAME = USERNAME
         self.PASSWORD = PASSWORD
         self.SECRET = SECRET
+        self.NETWORK = NETWORK
         self.VAULT_CONN = db_tools.db_user_connect(USERNAME, SECRET, PASSWORD)
         self.VAULT_DB = self.VAULT_CONN.cursor()
         super().__init__()
@@ -246,7 +247,7 @@ class Notes(Screen):
         if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): selected node: {node_label} id_{node_id + 2}")
 
         lbl_file = self.query_one("#lbl_file")
-        lbl_file.update(f"{self.SSID}:://CAVERNA/{self.USERNAME}/notes/{node_label}")
+        lbl_file.update(f"{self.NETWORK}:://CAVERNA/{self.USERNAME}/notes/{node_label}")
         if self.app.DEBUG: self.app.add_note(f"[Notes].on_tree_node_selected(self): updated renderable for -> {lbl_file}")
 
         if node_id == -2:

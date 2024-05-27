@@ -1,7 +1,7 @@
 # Packages
 import sys
 
-# Textual Pakcages
+# Textual Packages
 from rich.console import RenderableType
 from textual import events, on
 from textual.app import App, ComposeResult
@@ -67,7 +67,7 @@ class MenuForm(Container):
     @on(Button.Pressed, "#btn_notes")
     def notes_pressed(self, event: Button.Pressed) -> None:
         if self.app.DEBUG: self.app.add_note(f"[MenuForm]@Button.Pressed(#btn_notes): Pressed notes button")
-        self.app.push_screen(ui.notes.Notes(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG))
+        self.app.push_screen(ui.notes.Notes(self.app.USERNAME, self.app.PASSWORD, self.app.SECRET, self.app.DEBUG, self.app.NETWORK))
 
     @on(Button.Pressed, "#btn_otp")
     def otp_pressed(self, event: Button.Pressed) -> None:
@@ -80,13 +80,21 @@ class MenuForm(Container):
 #            credentials.                                              #
 ########################################################################
 class Menu(App[list]):
+    # CSS
     CSS_PATH = "../css/menu.tcss"
     TITLE = "CAVERNA"
     SUB_TITLE = "Menu"
+
+    # Auth
     USERNAME = None
     PASSWORD = None
     SECRET = None
+    NETWORK = None
+
+    # Flags
     DEBUG = False
+
+    # Bindings
     BINDINGS = [
         ("f1", "app.toggle_class('RichLog', '-hidden')", "❗Log"),
         ("f5", "toggle_sidebar", "🌐 About"),
@@ -97,13 +105,14 @@ class Menu(App[list]):
     ]
     show_sidebar = reactive(False)
 
-    def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG):
+    def __init__(self, USERNAME, PASSWORD, SECRET, DEBUG, NETWORK):
         if USERNAME == "None" and PASSWORD == "None":
             sys.exit("[ERROR]: Login module skipped. Aborting")
         self.DEBUG = DEBUG
         self.USERNAME = USERNAME
         self.PASSWORD = PASSWORD
         self.SECRET = SECRET
+        self.NETWORK = NETWORK
 
         self.app.sub_title = self.USERNAME
         super().__init__()

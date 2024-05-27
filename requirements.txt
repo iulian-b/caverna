@@ -8,3 +8,9 @@ httpx
 argon2-cffi
 tempmail-python
 pyperclip
+pyotp
+requests
+flask
+werkzeug
+pysqlcipher3
+tempmail
