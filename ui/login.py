@@ -3,6 +3,7 @@ from __future__ import annotations
 
 # Packages
 import argon2
+from argon2 import Type
 
 # Textual Pakcages
 from rich.console import RenderableType
@@ -74,7 +75,7 @@ class LoginForm(Container):
         if len(username) > 0 and len(password) > 0 and len(secret) > 0:
             try:
                 # Get the user's hash from the _users database
-                ph = argon2.PasswordHasher()
+                ph = argon2.PasswordHasher(time_cost=16, memory_cost=681574, parallelism=2, hash_len=32, salt_len=16, encoding='utf-8', type=Type.ID)
                 control_hash = db_tools.db_user_get_hash(username)
 
                 a = str(password + secret)

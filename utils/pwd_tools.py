@@ -4,7 +4,7 @@ import secrets
 from base64 import b64decode, b64encode
 from Cryptodome.Cipher import ChaCha20
 from Cryptodome.Random import get_random_bytes
-from argon2 import PasswordHasher
+from argon2 import PasswordHasher, Type
 
 
 ########################################################################################################################
@@ -15,7 +15,7 @@ from argon2 import PasswordHasher
 #  - str(new_hash)
 def pwd_gen_new_hash(pwd):
     # Create an argon2 password hasher
-    ph = PasswordHasher()
+    ph = PasswordHasher(time_cost=16, memory_cost=681574, parallelism=2, hash_len=32, salt_len=16, encoding='utf-8', type=Type.ID)
 
     # Hash the given password with random salt
     new_hash = ph.hash(password=pwd)
