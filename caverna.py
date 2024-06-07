@@ -367,7 +367,7 @@ def main():
         sys.exit()
 
     # Check connection
-    if sync_tools.sync_check_network(NETWORK):
+    if sync_tools.sync_check_network(NETWORK, SERVER):
         CONNECTED = True
         if DEBUG: print(f"[ui_login()]: CONNECTED -> True")
     else:

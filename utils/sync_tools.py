@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import os
 import pickle
+import socket
 import subprocess
 import platform
 import urllib.request
@@ -333,10 +334,20 @@ def sync_load_settings():
 # Returns:
 #   - bool(True): if it's connected to the network
 #   - bool(False): if it's not connected to the network
-def sync_check_network(network):
-    interfaces = subprocess.check_output(['netsh', 'WLAN', 'show', 'interfaces'])
-    data = interfaces.decode('utf-8')
-    if network in data:
-        return True
-    else:
+def sync_check_network(network, serverIP):
+    try:
+        interfaces = subprocess.check_output(['netsh', 'WLAN', 'show', 'interfaces'])
+        data = interfaces.decode('utf-8')
+        if network in data:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex(serverIP)
+            if result == 0:
+                sock.close()
+                return True
+            else:
+                sock.close()
+                return False
+        else:
+            return False
+    except Exception as e:
         return False

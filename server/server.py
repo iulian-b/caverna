@@ -1,6 +1,8 @@
+import argparse
 import datetime
 import os
 import platform
+import sys
 
 from pysqlcipher3 import dbapi2 as sqlcipher
 from flask import Flask, request, jsonify, flash, redirect, url_for, send_from_directory
@@ -8,14 +10,14 @@ from werkzeug.utils import secure_filename
 from ctypes import windll, wintypes, byref
 
 app = Flask(__name__)
-HOST = "192.168.1.112"
-PORT = 1999
 AUTH = False
 
 UPLOAD_FOLDER = 'caves'
 ALLOWED_EXTENSIONS = {'cvrn'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = os.urandom(12).hex()
+
+
 
 ########################################################################################################################
 def allowed_file(filename):
@@ -188,6 +190,36 @@ def obfuscate():
 
     return '', 404
 
+
 ########################################################################################################################
 if __name__ == "__main__":
-    app.run(host=HOST, debug=True, port=PORT)
+    HOST = ""
+    PORT = ""
+    DEBUG = False
+
+    parsarg = argparse.ArgumentParser(description="Description")
+    parsarg.add_argument("-t", "--host", action="store", help="Host IP Address")
+    parsarg.add_argument("-p", "--port", action="store", help="Host Port")
+    parsarg.add_argument("-d", "--debug", action="store_true", help="Enable verbosity")
+    parsarg.add_argument("-v", "--version", action="store_true", help="Print version")
+    args = parsarg.parse_args()
+
+    ########################################################################################################################
+    # Argument --debug
+    if args.debug:
+        DEBUG = True
+
+    # Argument --version
+    if args.version:
+        VERSION = 'v1.0.2'
+        VERSION_LONG = f"~ CAVERNA | {VERSION} | 2024.5 | iulian(iulian@firemail.cc) ~"
+        print(VERSION_LONG)
+        sys.exit()
+
+    HOST = args.host
+    PORT = args.port
+    if HOST == "" or PORT == "":
+        print("Please provide a host IP and PORT")
+        sys.exit()
+
+    app.run(host=HOST, debug=DEBUG, port=PORT)
