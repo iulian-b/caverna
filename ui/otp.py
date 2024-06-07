@@ -275,5 +275,3 @@ class OTP(Screen):
         await self.app.query_one("#otp_container").mount(new)
         self.screen.save()
         self.screen.refresh()
-
-    # BTM5DBJYSVPPP4MU
