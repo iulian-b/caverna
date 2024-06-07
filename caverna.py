@@ -22,7 +22,7 @@ def main():
     parsarg.add_argument("-N", "--new", action="store_true", help="Create a new user")
     # parsarg.add_argument("-C", "--changepwd", action="store_true", help="Change a user's master password") NEEDS UPDATING
     parsarg.add_argument("-v", "--version", action="store_true", help="Print version")
-    parsarg.add_argument("-d", "--debug", action="store_true", help="Enable verbosity")
+    # parsarg.add_argument("-d", "--debug", action="store_true", help="Enable verbosity")
     parsarg.add_argument("-S", "--setup", action="store_true", help="Setup CAVERNA")
     args = parsarg.parse_args()
 
