@@ -25,9 +25,10 @@ from utils.ui_utils import (
     QuitScreen
 )
 import ui.vault
-import ui.mail
+# import ui.mail
 import ui.notes
 import ui.otp
+import utils.sync_tools as sync_tools
 
 
 ########################################################################################################################
@@ -53,6 +54,10 @@ class MenuForm(Container):
 
     def _on_mount(self, event: events.Mount) -> None:
         self.btn_vault.disabled = False
+        if not sync_tools.sync_check_internet_conn():
+            self.btn_mail.disabled = True
+        else:
+            import ui.mail
 
     @on(Button.Pressed, "#btn_vault")
     def vault_pressed(self, event: Button.Pressed) -> None:

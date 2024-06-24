@@ -9,7 +9,14 @@ from textual.app import ComposeResult
 from textual.widgets import Label, Markdown, TabbedContent, TabPane, Footer, Header
 from tempmail import EMail
 
-EMAIL_ADDRESS = EMail()
+# In case of no connection
+EMAIL_ADDRESS = None
+try:
+    EMAIL_ADDRESS = EMail()
+except:
+    EMAIL_ADDRESS = "None"
+
+
 MD_ADDRESS = f"""
 # {EMAIL_ADDRESS.address}
 

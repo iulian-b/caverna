@@ -61,6 +61,19 @@ def sync_ping(host):
 
 
 ########################################################################################################################
+# Returns True if user is connected to the internet
+# Returns:
+#  - bool(True): user is connected to the internet
+#  - bool(False): user is not connected to the internet
+def sync_check_internet_conn():
+    try:
+        response = requests.get("https://google.com", timeout=5)
+        return True
+    except requests.ConnectionError:
+        return False
+
+
+########################################################################################################################
 # Establishes a handshake with the CAVERNA server
 # Arguments:
 #  - str(serverIP): the IP address of the server

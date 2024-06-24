@@ -19,13 +19,14 @@ LOGO_L6 = " ╚═════╝╚═╝  ╚═╝  ╚═══╝  ╚═�
 LOGO_ASCII = LOGO_L1 + LOGO_L2 + LOGO_L3 + LOGO_L4 + LOGO_L5 + LOGO_L6
 
 # The quirky logo subtitle
-SUB_LIST = ['Powered by argon2', 'No place like 127.0.0.1', '100% FOSS', 'Better than LastPass',
-            '746865616E7377657269733432',
-            'No XZ Utils utilized', 'These messages are random', ':(){ :|:& };:', 'They Not Like Us',
-            'traceroute bad.horse', 'towel.blinkenlights.nl', '6', '3-9-4-8-6 3-9-4-8-6',
-            'ChaCha20, Real Smooth', 'ʕっ•ᴥ•ʔっ', 'ʕノ•ᴥ•ʔノ ︵ ┻━┻', '( ╥﹏╥) ノシ don\'t get pwned',
-            'textualize.io', 'Collecting Fragments [...]', '37', '48756D6964697479626164666F727063', 'BEYONDteworldofmatters',
-            'SEEKERnthecave', 'The prisoner in the cave', 'Between lines and numbers', 'Between hashes and ciphers']
+# SUB_LIST = ['Powered by argon2', 'No place like 127.0.0.1', '100% FOSS', 'Better than LastPass',
+#             '746865616E7377657269733432',
+#             'No XZ Utils utilized', 'These messages are random', ':(){ :|:& };:', 'They Not Like Us',
+#             'traceroute bad.horse', 'towel.blinkenlights.nl', '6', '3-9-4-8-6 3-9-4-8-6',
+#             'ChaCha20, Real Smooth', 'ʕっ•ᴥ•ʔっ', 'ʕノ•ᴥ•ʔノ ︵ ┻━┻', '( ╥﹏╥) ノシ don\'t get pwned',
+#             'textualize.io', 'Collecting Fragments [...]', '37', '48756D6964697479626164666F727063', 'BEYONDteworldofmatters',
+#             'SEEKERnthecave', 'The prisoner in the cave', 'Between lines and numbers', 'Between hashes and ciphers']
+SUB_LIST = ['2-7-24 - DEMO']
 LOGO_SUB = "\n" + random.choice(SUB_LIST)
 
 # Version

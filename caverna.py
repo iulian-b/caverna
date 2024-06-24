@@ -28,8 +28,8 @@ def main():
 
     ########################################################################################################################
     # Argument --debug
-    if args.debug:
-        DEBUG = True
+    # if args.debug:
+    #     DEBUG = True
 
     ########################################################################################################################
     # Argument --version
@@ -112,7 +112,7 @@ def main():
                     if DEBUG: print(f"[args.new] Server returned: {r} \n{e}")
             else:
                 if DEBUG: print(f"[args.new] could not add {new_user} to server {SERVER}")
-
+        #
         except Exception as e:
             # Exception if the user database file already exists
             if os.path.exists(f'{new_user}.db'):
@@ -326,6 +326,9 @@ def main():
         try:
             stash = db_tools.db_stash_connect()
             stash.close()
+
+            # Initialize stash
+            db_tools.db_stash_init()
             print("[SETUP] Generated stash")
         except Exception as e:
             print(f"[Error] Could not initialize stash: {e}")

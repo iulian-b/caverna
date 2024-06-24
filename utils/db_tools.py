@@ -192,6 +192,23 @@ def db_stash_connect():
 
 
 ########################################################################################################################
+# Initializes stash
+def db_stash_init():
+    # Connect to the database
+    conn = db_stash_connect()
+    c = conn.cursor()
+
+    # Create tables
+    c.execute("""CREATE TABLE users (
+    	    ID INTEGER PRIMARY KEY,
+       	    USER TEXT NOT NULL,
+    	    MPWD TEXT NOT NULL,
+    	    LAD TEXT
+        )""")
+
+
+
+########################################################################################################################
 # Initialize the given user's database schema
 # Arguments:
 #  - str(user): the username
